@@ -108,5 +108,8 @@
     <Compile Include="QuotationTextCleaner.cs" />
     <Compile Include="QuotationTypeConverter.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="QuotationsToolbox.dll" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
