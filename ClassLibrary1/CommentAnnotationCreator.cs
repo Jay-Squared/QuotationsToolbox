@@ -40,7 +40,9 @@ namespace QuotationsToolbox
                     Project project = reference.Project;
                     if (project == null) return;
 
-                    Annotation mainQuotationAnnotation = quotation.EntityLinks.Where(link => link.Target is Annotation).FirstOrDefault().Target as Annotation;
+                    KnowledgeItem mainQuotation = quotation.EntityLinks.ToList().Where(n => n != null && n.Indication == EntityLink.CommentOnQuotationIndication && n.Target as KnowledgeItem != null).ToList().FirstOrDefault().Target as KnowledgeItem;
+
+                    Annotation mainQuotationAnnotation = mainQuotation.EntityLinks.Where(link => link.Target is Annotation).FirstOrDefault().Target as Annotation;
                     if (mainQuotationAnnotation == null) return;
 
                     Location location = mainQuotationAnnotation.Location;
@@ -51,6 +53,8 @@ namespace QuotationsToolbox
                     newAnnotation.OriginalColor = System.Drawing.Color.FromArgb(255, 255, 255, 0);
                     newAnnotation.Quads = mainQuotationAnnotation.Quads;
                     newAnnotation.Visible = false;
+                    location.Annotations.Add(newAnnotation);
+
 
                     EntityLink newEntityLink = new EntityLink(project);
                     newEntityLink.Source = quotation;

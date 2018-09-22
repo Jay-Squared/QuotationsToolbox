@@ -47,10 +47,17 @@ namespace QuotationsToolbox
             Annotation newAnnotation = new Annotation(location);
 
             KnowledgeItem summary = new KnowledgeItem(reference, QuotationType.Summary);
+            reference.Quotations.Add(summary);
 
             foreach (KnowledgeItem quotation in quotations)
             {
                 pageRanges.Add(quotation.PageRange);
+
+                EntityLink summaryQuotationLink = new EntityLink(project);
+                summaryQuotationLink.Source = summary;
+                summaryQuotationLink.Target = quotation;
+                summaryQuotationLink.Indication = EntityLink.CommentOnQuotationIndication;
+                project.EntityLinks.Add(summaryQuotationLink);
 
                 Annotation quotationAnnotation = quotation.EntityLinks.Where(link => link.Target is Annotation).FirstOrDefault().Target as Annotation;
                 if (quotationAnnotation == null) continue;
@@ -66,7 +73,6 @@ namespace QuotationsToolbox
 
             summary.PageRange = PageRangeMerger.PageRangeListToString(pageRanges);
             summary.CoreStatementUpdateType = UpdateType.Automatic;
-            reference.Quotations.Add(summary);
 
             EntityLink summaryAnnotationLink = new EntityLink(project);
             summaryAnnotationLink.Source = summary;
