@@ -52,6 +52,9 @@ namespace QuotationsToolbox
             commandbarButtonCreateCommentOnQuotation.Shortcut = Shortcut.CtrlShiftK;
             referenceEditorQuotationsContextMenu.AddCommandbarButton("SelectLinkedKnowledgeItem", "Jump to related quote or comment");
 
+            var commandbarButtonCreateSummaryOnQuotations = referenceEditorQuotationsContextMenu.AddCommandbarButton("CreateSummaryOnQuotations", "Create summary of selected quotes");
+
+
             var commandbarButtonCleanQuotationsText = referenceEditorQuotationsContextMenu.AddCommandbarButton("CleanQuotationsText", "Clean text of selected quotes");
             commandbarButtonCleanQuotationsText.Shortcut = Shortcut.ShiftDel;
             commandbarButtonCleanQuotationsText.HasSeparator = true;
@@ -129,6 +132,13 @@ namespace QuotationsToolbox
                         e.Handled = true;
                         List<KnowledgeItem> quotations = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedQuotations().ToList();
                         CommentCreator.CreateCommentOnQuotation(quotations);
+                    }
+                    break;
+                case "CreateSummaryOnQuotations":
+                    {
+                        e.Handled = true;
+                        List<KnowledgeItem> quotations = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedQuotations().ToList();
+                        SummaryCreator.CreatesummaryOnQuotations(quotations);
                     }
                     break;
                 case "KnowledgeItemsSortInReference":

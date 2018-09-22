@@ -99,6 +99,7 @@
     <Compile Include="PageRangeFromPDFAssigner.cs" />
     <Compile Include="PageRangeFromPrecedingQuotationAssigner.cs" />
     <Compile Include="PageRangeManualAssigner.cs" />
+    <Compile Include="PageRangeMerger.cs" />
     <Compile Include="PageWidthStore.cs" />
     <Compile Include="PDFUtilities.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -107,6 +108,7 @@
     <Compile Include="QuotationsSorter.cs" />
     <Compile Include="QuotationTextCleaner.cs" />
     <Compile Include="QuotationTypeConverter.cs" />
+    <Compile Include="SummaryCreator.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="QuotationsToolbox.dll" />
