@@ -18,12 +18,13 @@ namespace QuotationsToolbox
             Reference reference = quotations.FirstOrDefault().Reference;
             if (reference == null) return;
 
-            var pdfLocations = reference.GetPDFLocations();
-            if (pdfLocations == null) return;
+            var locations = quotations.GetPDFLocations();
+
+            if (locations == null) return;
 
             List<PageWidth> store = new List<PageWidth>();
 
-            foreach (Location location in pdfLocations)
+            foreach (Location location in locations)
             {
                 Document document = null;
 

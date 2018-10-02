@@ -42,7 +42,7 @@ namespace QuotationsToolbox
 
                     KnowledgeItem mainQuotation = quotation.EntityLinks.ToList().Where(n => n != null && n.Indication == EntityLink.CommentOnQuotationIndication && n.Target as KnowledgeItem != null).ToList().FirstOrDefault().Target as KnowledgeItem;
 
-                    Annotation mainQuotationAnnotation = mainQuotation.EntityLinks.Where(link => link.Target is Annotation).FirstOrDefault().Target as Annotation;
+                    Annotation mainQuotationAnnotation = mainQuotation.EntityLinks.Where(link => link.Target is Annotation && link.Indication == EntityLink.PdfKnowledgeItemIndication).FirstOrDefault().Target as Annotation;
                     if (mainQuotationAnnotation == null) return;
 
                     Location location = mainQuotationAnnotation.Location;

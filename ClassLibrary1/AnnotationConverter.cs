@@ -21,14 +21,16 @@ namespace QuotationsToolbox
     {
         public static void ConvertAnnotations(Reference reference)
         {
-            var pdfLocations = reference.GetPDFLocations();
-
             var project = reference.Project;
 
-            Document document = PDFUtilities.GetDocument(Program.ActiveProjectShell.PrimaryMainForm.PreviewControl);
+            PreviewControl previewControl = Program.ActiveProjectShell.PrimaryMainForm.PreviewControl;
+            if (previewControl == null) return;
+
+            Document document = previewControl.GetDocument();
             if (document == null) return;
 
-            PreviewControl previewControl = Program.ActiveProjectShell.PrimaryMainForm.PreviewControl;
+            Location location = document.GetPDFLocationOfDocument();
+            if (location == null) return;
 
             var type = previewControl.GetType();
             var propertyInfos = type.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
@@ -46,8 +48,6 @@ namespace QuotationsToolbox
 
             if (document != null)
             {
-                Location location = reference.Locations.Where(l => l.LocationType == LocationType.ElectronicAddress && l.Address.Resolve().LocalPath == document.GetFileName()).ToList().FirstOrDefault();
-
                 List<Annotation> annotations = location.Annotations.Where(a => a.Visible == true && a.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).Count() == 0).ToList();
 
                 foreach (Annotation annotation in annotations)

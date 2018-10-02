@@ -21,7 +21,7 @@ namespace QuotationsToolbox
 {
     public static class PDFUtilities
     {
-        public static Document GetDocument(PreviewControl previewControl)
+        public static Document GetDocument(this PreviewControl previewControl)
         {
             var type = previewControl.GetType();
             var propertyInfos = type.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
@@ -45,7 +45,39 @@ namespace QuotationsToolbox
 
         public static List<Location> GetPDFLocations(this Reference reference)
         {
-            return reference.Quotations.ToList().GetPDFLocations();
+            List<Location> locations = reference.Locations.Where(l => l.LocationType == LocationType.ElectronicAddress && l.Address.Resolve().LocalPath.EndsWith(".pdf")).ToList();
+            return locations;
+        }
+
+        public static Location GetPDFLocationOfDocument(this Document document)
+        {
+            List<Reference> references = Program.ActiveProjectShell.PrimaryMainForm.Project.References.ToList();
+
+            string foundPDFs = document.GetFileName();
+
+            List<Reference> referencesWithLocation = new List<Reference>();
+
+            foreach (Reference reference in references)
+            {
+                Location[] locations = reference.Locations.ToArray();
+
+                foreach (Location location in locations)
+                {
+                    if (location.Address.LinkedResourceType == LinkedResourceType.AttachmentFile)
+                    {
+                        string referenceFile = location.Address.Resolve().LocalPath;
+                        if (foundPDFs.Contains(referenceFile)) referencesWithLocation.Add(reference);
+                    }
+                }
+            }
+
+            Reference referenceWithLocation = referencesWithLocation.FirstOrDefault();
+
+            Location result = referenceWithLocation.Locations.Where(l => l.LocationType == LocationType.ElectronicAddress
+                && l.Address.Resolve().LocalPath.EndsWith(".pdf") && l.Address.Resolve().LocalPath == document.GetFileName()).FirstOrDefault();
+            if (result == null) return null;
+
+            return result;
         }
 
         public static List<Location> GetPDFLocations(this List<KnowledgeItem> knowledgeItems)

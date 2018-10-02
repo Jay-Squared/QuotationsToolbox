@@ -101,9 +101,11 @@
     <Compile Include="PageRangeManualAssigner.cs" />
     <Compile Include="PageRangeMerger.cs" />
     <Compile Include="PageWidthStore.cs" />
+    <Compile Include="ExternalCommentConverter.cs" />
     <Compile Include="PDFUtilities.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QuickReferenceTitleCaser.cs" />
+    <Compile Include="QuotationLinker.cs" />
     <Compile Include="QuotationMerger.cs" />
     <Compile Include="QuotationsSorter.cs" />
     <Compile Include="QuotationTextCleaner.cs" />

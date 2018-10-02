@@ -26,12 +26,18 @@ namespace QuotationsToolbox
             Project project = reference.Project;
             if (project == null) return;
 
-            Location location = reference.Locations.ToList().FirstOrDefault();
+            PreviewControl previewControl = Program.ActiveProjectShell.PrimaryMainForm.PreviewControl;
+            if (previewControl == null) return;
+
+            Document document = previewControl.GetDocument();
+            if (document == null) return;
+
+            Location location = reference.Locations.Where(l => l.LocationType == LocationType.ElectronicAddress
+    && l.Address.Resolve().LocalPath.EndsWith(".pdf") && l.Address.Resolve().LocalPath == document.GetFileName()).FirstOrDefault();
+            if (location == null) return;
 
             Control quotationSmartRepeater = Program.ActiveProjectShell.PrimaryMainForm.Controls.Find("quotationSmartRepeater", true).FirstOrDefault();
             SwissAcademic.Citavi.Shell.Controls.SmartRepeaters.QuotationSmartRepeater quotationSmartRepeaterAsQuotationSmartRepeater = quotationSmartRepeater as SwissAcademic.Citavi.Shell.Controls.SmartRepeaters.QuotationSmartRepeater;
-
-            PreviewControl previewControl = Program.ActiveProjectShell.PrimaryMainForm.PreviewControl;
 
             var type = previewControl.GetType();
             var propertyInfos = type.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);

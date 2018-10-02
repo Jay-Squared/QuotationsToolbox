@@ -206,10 +206,11 @@ namespace QuotationsToolbox
         {
             switch (knowledgeItem.QuotationType)
             {
-                case QuotationType.DirectQuotation: return 1;
-                case QuotationType.IndirectQuotation: return 2;
-                case QuotationType.Comment: return 3;
-                default: return 0;
+                case QuotationType.QuickReference: return 1;
+                case QuotationType.DirectQuotation: return 2;
+                case QuotationType.IndirectQuotation: return 3;
+                case QuotationType.Comment: return 4;
+                default: return 5;
             }
         }
     }

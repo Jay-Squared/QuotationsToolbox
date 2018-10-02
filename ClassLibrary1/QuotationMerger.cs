@@ -2,10 +2,14 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 
 using SwissAcademic;
 using SwissAcademic.Citavi;
+using SwissAcademic.Citavi.Shell;
+using SwissAcademic.Citavi.Shell.Controls.Preview;
+using SwissAcademic.Citavi.Controls.Wpf;
 using SwissAcademic.Pdf;
 using SwissAcademic.Pdf.Analysis;
 
@@ -23,7 +27,11 @@ namespace QuotationsToolbox
             Project project = reference.Project;
             if (project == null) return;
 
-            Location location = reference.Locations.ToList().FirstOrDefault();
+            List<Location> locations = quotations.GetPDFLocations();
+
+            if (locations.Count != 1) return;
+
+            Location location = locations.FirstOrDefault();
 
             List<Annotation> existingCitaviAnnotations = new List<Annotation>();
             List<Annotation> originalAnnotations = new List<Annotation>();
@@ -33,12 +41,12 @@ namespace QuotationsToolbox
             string pageRangeText = string.Empty;
 
             string text = string.Empty;
-
-            var pdfLocations = reference.GetPDFLocations();
-
             List<PageWidth> store = new List<PageWidth>();
-            
-            Document document = null;
+
+            PreviewControl previewControl = Program.ActiveProjectShell.PrimaryMainForm.PreviewControl;
+            if (previewControl == null) return;
+
+            Document document = previewControl.GetDocument();
 
             if (document != null)
             {
@@ -85,6 +93,7 @@ namespace QuotationsToolbox
                 }
                 text = MergeRTF(text, quotation.TextRtf);
             }
+
 
             pageRangeText = PageRangeMerger.PageRangeListToString(pageRangesList);
 
@@ -142,9 +151,7 @@ namespace QuotationsToolbox
                 rtbMerged.Paste();
                 rtbMerged.Select(1, 1);
                 Font font = rtbMerged.SelectionFont;
-                rtbMerged.AppendText(" […] ");
-                rtbMerged.Select(rtbMerged.Text.Length - 5, 5);
-                rtbMerged.SelectionFont = new Font(font, System.Drawing.FontStyle.Bold);
+                rtbMerged.AppendText(" ");
                 rtbMerged.Select(rtbMerged.Text.Length, 0);
             }
 

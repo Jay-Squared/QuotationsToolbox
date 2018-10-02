@@ -30,8 +30,10 @@ namespace QuotationsToolbox
 
             var referencesMenu = mainForm.GetMainCommandbarManager().GetReferenceEditorCommandbar(MainFormReferenceEditorCommandbarId.Menu).GetCommandbarMenu(MainFormReferenceEditorCommandbarMenuId.References);
 
-            var commandbarButtonConvertAnnotations = referencesMenu.AddCommandbarButton("ConvertAnnotations", "Convert external annotations to quotations in active reference");
+            var commandbarButtonConvertAnnotations = referencesMenu.AddCommandbarButton("ConvertAnnotations", "Convert external annotations to quotations in shown PDF attachment of active reference");
             commandbarButtonConvertAnnotations.HasSeparator = true;
+
+            referencesMenu.AddCommandbarButton("ConvertExternalComments", "Convert external comments to comments in active reference");
 
             // Quotations Pop-Up Menu
 
@@ -48,19 +50,22 @@ namespace QuotationsToolbox
 
             var commandbarButtonCommentAnnotation = referenceEditorQuotationsContextMenu.AddCommandbarButton("CommentAnnotation", "Link comment to same text in PDF as related quote");
             commandbarButtonCommentAnnotation.HasSeparator = true;
+            referenceEditorQuotationsContextMenu.AddCommandbarButton("LinkQuotations", "Link selected quote and comment");
             var commandbarButtonCreateCommentOnQuotation = referenceEditorQuotationsContextMenu.AddCommandbarButton("CreateCommentOnQuotation", "Create comment on selected quote");
             commandbarButtonCreateCommentOnQuotation.Shortcut = Shortcut.CtrlShiftK;
             referenceEditorQuotationsContextMenu.AddCommandbarButton("SelectLinkedKnowledgeItem", "Jump to related quote or comment");
-
-            var commandbarButtonCreateSummaryOnQuotations = referenceEditorQuotationsContextMenu.AddCommandbarButton("CreateSummaryOnQuotations", "Create summary of selected quotes");
-
-
+            
             var commandbarButtonCleanQuotationsText = referenceEditorQuotationsContextMenu.AddCommandbarButton("CleanQuotationsText", "Clean text of selected quotes");
             commandbarButtonCleanQuotationsText.Shortcut = Shortcut.ShiftDel;
             commandbarButtonCleanQuotationsText.HasSeparator = true;
             referenceEditorQuotationsContextMenu.AddCommandbarButton("QuickReferenceTitleCase", "Write core statement in title case in selected quick references");
-            referenceEditorQuotationsContextMenu.AddCommandbarButton("QuotationsMerge", "Merge selected quotes");
-            referenceEditorQuotationsContextMenu.AddCommandbarButton("ConvertDirectQuoteToRedHighlight", "Convert selected quotes to quick references");
+
+            var commandbarButtonConvertDirectQuoteToRedHighlight = referenceEditorQuotationsContextMenu.AddCommandbarButton("ConvertDirectQuoteToRedHighlight", "Convert selected quotes to quick references");
+            commandbarButtonConvertDirectQuoteToRedHighlight.HasSeparator = true;
+
+            var commandbarButtonQuotationsMerge = referenceEditorQuotationsContextMenu.AddCommandbarButton("QuotationsMerge", "Merge selected quotes");
+            commandbarButtonQuotationsMerge.HasSeparator = true;
+            var commandbarButtonCreateSummaryOnQuotations = referenceEditorQuotationsContextMenu.AddCommandbarButton("CreateSummaryOnQuotations", "Create summary of selected quotes");
 
             // Knowledge Item Pop-Up Menu
 
@@ -99,8 +104,6 @@ namespace QuotationsToolbox
 
         protected override void OnBeforePerformingCommand(SwissAcademic.Controls.BeforePerformingCommandEventArgs e)
         {
-            Project project = Program.ActiveProjectShell.Project;
-
             switch (e.Key)
             {
                 #region Reference-based commands
@@ -109,6 +112,13 @@ namespace QuotationsToolbox
                         e.Handled = true;
                         Reference reference = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedReferences().FirstOrDefault();
                         AnnotationConverter.ConvertAnnotations(reference);
+                    }
+                    break;
+                case "ConvertExternalComments":
+                    {
+                        e.Handled = true;
+                        Reference reference = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedReferences().FirstOrDefault();
+                        ExternalCommentConverter.ConvertComments(reference);
                     }
                     break;
                 #endregion
@@ -153,6 +163,13 @@ namespace QuotationsToolbox
                         e.Handled = true;
                         List<KnowledgeItem> quotations = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedQuotations().ToList();
                         CommentAnnotationCreator.CreateCommentAnnotation(quotations);
+                    }
+                    break;
+                case "LinkQuotations":
+                    {
+                        e.Handled = true;
+                        List<KnowledgeItem> quotations = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedQuotations().ToList();
+                        QuotationLinker.LinkQuotations(quotations);
                     }
                     break;
                 case "PageAssignFromPositionInPDF":
