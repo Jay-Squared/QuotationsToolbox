@@ -17,9 +17,9 @@ using pdftron.PDF;
 
 namespace QuotationsToolbox
 {
-    class AnnotationConverter
+    class AnnotationImporter
     {
-        public static void ConvertAnnotations(Reference reference)
+        public static void ImportAnnotations(Reference reference)
         {
             var project = reference.Project;
 

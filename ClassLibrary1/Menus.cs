@@ -30,7 +30,7 @@ namespace QuotationsToolbox
 
             var referencesMenu = mainForm.GetMainCommandbarManager().GetReferenceEditorCommandbar(MainFormReferenceEditorCommandbarId.Menu).GetCommandbarMenu(MainFormReferenceEditorCommandbarMenuId.References);
 
-            var commandbarButtonConvertAnnotations = referencesMenu.AddCommandbarButton("ConvertAnnotations", "Convert external annotations to quotations in shown PDF attachment of active reference");
+            var commandbarButtonConvertAnnotations = referencesMenu.AddCommandbarButton("ImportAnnotations", "Import external annotations as direct quotations in active reference");
             commandbarButtonConvertAnnotations.HasSeparator = true;
 
             referencesMenu.AddCommandbarButton("ConvertExternalComments", "Convert external comments to comments in active reference");
@@ -107,11 +107,11 @@ namespace QuotationsToolbox
             switch (e.Key)
             {
                 #region Reference-based commands
-                case "ConvertAnnotations":
+                case "ImportAnnotations":
                     {
                         e.Handled = true;
                         Reference reference = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedReferences().FirstOrDefault();
-                        AnnotationConverter.ConvertAnnotations(reference);
+                        AnnotationImporter.ImportAnnotations(reference);
                     }
                     break;
                 case "ConvertExternalComments":

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using SwissAcademic.Citavi.Controls.Wpf;
 
 using SwissAcademic.Citavi;
 
@@ -16,7 +17,7 @@ namespace QuotationsToolbox
         {
             foreach (KnowledgeItem quotation in quotations)
             {
-                string text = quotation.Text;                
+                string text = quotation.Text;
                 quotation.Text = TextCleaner(text);
             }
         }

@@ -87,7 +87,8 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AnnotationConverter.cs" />
+    <Compile Include="AnnotationExporter.cs" />
+    <Compile Include="AnnotationImporter.cs" />
     <Compile Include="Menus.cs" />
     <Compile Include="CommentAnnotationCreator.cs" />
     <Compile Include="CommentCreator.cs" />

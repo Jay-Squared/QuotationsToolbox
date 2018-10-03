@@ -33,7 +33,6 @@ namespace QuotationsToolbox
                 if (quotation.QuotationType != QuotationType.QuickReference) continue;
                 string text = quotation.CoreStatement;
                 text = TitleCase(text);
-                text = QuotationTextCleaner.TextCleaner(text);
                 quotation.CoreStatement = text;               
             }
         }
@@ -42,10 +41,16 @@ namespace QuotationsToolbox
             string output;
 
             text = Regex.Replace(text, @"(?<!^)([^IVX])", m => m.ToString().ToLower());
-            text = Regex.Replace(text, @"[IVX](?![IVX\s\p{P}])", m => m.ToString().ToLower());
+            text = Regex.Replace(text, @"(?<![ IVX\(])[IVX](?![IVX\s\p{P}])", m => m.ToString().ToLower());
 
-            text = Regex.Replace(text, @"^[a-z](?=[a-z]{2,})", s => (s.Value.ToUpper()));
-            text = Regex.Replace(text, @"\s[a-z](?=[a-z]{2,})", s => (s.Value.ToUpper()));
+
+
+            // (1) Word Boundary, (2) One Letter, (Positive Lookahead) At Least Two More Letters
+            text = Regex.Replace(text, @"(\b)([\p{L}])(?=[\p{L}]{2,})", s => (s.Value.ToUpper()));
+            // (2) Punctuation, (2) White Space, (3) Letter
+            text = Regex.Replace(text, @"([\.\-\)])([\s]*)([\p{L}])", s => (s.Value.ToUpper()));
+            // (1) Word Boundary, (2) One Letter, (3) Period
+            text = Regex.Replace(text, @"(\b)([\p{L}])(\.)", s => (s.Value.ToUpper()));
 
             text = Regex.Replace(text, " And ", " and ");
             text = Regex.Replace(text, " For ", " for ");
@@ -53,8 +58,8 @@ namespace QuotationsToolbox
             text = Regex.Replace(text, " The ", " the ");
             text = Regex.Replace(text, " With ", " with ");
 
-            text = Regex.Replace(text, @"[\p{P}]\s[a-z]", s => (s.Value.ToUpper()));
-
+            // (1) Beginning of Line, (2) White Space, (3) Letter
+            text = Regex.Replace(text, @"(^)([\s]*)([\p{L}])", s => (s.Value.ToUpper()));
 
             output = text;
             return output;
