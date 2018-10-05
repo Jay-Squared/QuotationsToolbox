@@ -25,7 +25,7 @@ using pdftron.PDF.Annots;
 
 namespace QuotationsToolbox
 {
-    class ExternalCommentConverter
+    class AnnotationImporterComments
     {
         public static void ConvertComments(Reference reference)
         {
@@ -49,7 +49,6 @@ namespace QuotationsToolbox
 
             if (reference.PageRange.StartPage.Number != null) startPageInt = reference.PageRange.StartPage.Number.Value;
 
-            int overall_num_annots = 0;
             List<Annot> annotationsToDelete = new List<Annot>();
 
             var type = previewControl.GetType();
@@ -62,7 +61,6 @@ namespace QuotationsToolbox
 
             Content contentx = pdfViewControl.GetSelectedContentFromType(pdfViewControl.GetSelectedContentType(), -1, false, true);
             SwissAcademic.Citavi.Controls.Wpf.TextContent textContentx = contentx as TextContent;
-            System.Diagnostics.Debug.WriteLine(textContentx.Text);
 
             List<Annotation> annotations = location.Annotations.ToList();
 
@@ -71,15 +69,12 @@ namespace QuotationsToolbox
                 pdftron.PDF.Page page = document.GetPage(i);
                 if (page.IsValid())
                 {
-                    overall_num_annots = overall_num_annots + page.GetNumAnnots();
                     for (int j = 1; j <= page.GetNumAnnots(); j++)
                     {
                         Annot annot = page.GetAnnot(j);
                         if (annot.GetSDFObj() != null && annot.GetType() == Annot.Type.e_Highlight)
                         {
                             Highlight highlight = new Highlight(annot);
-
-                            System.Diagnostics.Debug.WriteLine("PDFTron Highlight");
 
                             if (string.IsNullOrEmpty(highlight.GetContents())) continue;
 
@@ -91,15 +86,7 @@ namespace QuotationsToolbox
                                 List<double> xValues = new List<double>();
                                 List<double> yValues = new List<double>();
 
-
                                 QuadPoint quadPoint = highlight.GetQuadPoint(l);
-
-                                System.Diagnostics.Debug.WriteLine("QUAD POINT");
-
-                                System.Diagnostics.Debug.WriteLine("p1.x: " + quadPoint.p1.x + ", p1.y: " + quadPoint.p1.y
-                                    + "; p2.x: " + quadPoint.p2.x + ", p2.y: " + quadPoint.p2.y
-                                    + "; p3.x: " + quadPoint.p3.x + ", p3.y: " + + quadPoint.p3.y
-                                    + "; p4.x: " + quadPoint.p4.x + ", p4.y: " + quadPoint.p4.y);
 
                                 Quad quad = new Quad(highlight.GetPage().GetIndex(), quadPoint.p1.x, quadPoint.p1.y, quadPoint.p2.x, quadPoint.p2.y);
 
@@ -128,14 +115,13 @@ namespace QuotationsToolbox
                             commentAnnotationLink.Indication = EntityLink.PdfKnowledgeItemIndication;
                             project.EntityLinks.Add(commentAnnotationLink);
 
-                            // Now let's look at the corresponding Citavi annotation
-
+                            // Check if there already is a Citavi annotation with the same quads that we can link the new comment to
 
                             Annotation annotation = annotations.Where(a => !a.Quads.ToList().Except(commentAnnotationQuads).Any()).FirstOrDefault();
 
                             if (annotation == null) continue;
 
-                            // If it is already linked to a knowledge item, we link the new comment to that knowledge item
+                            // If that annotation is already linked to a knowledge item, we link the new comment to that knowledge item
 
                             if (annotation.EntityLinks != null && annotation.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).Count() > 0)
                             {
@@ -145,7 +131,8 @@ namespace QuotationsToolbox
                                 commentQuotationLink.Indication = EntityLink.CommentOnQuotationIndication;
                                 project.EntityLinks.Add(commentQuotationLink);
                             }
-                            // If the corresponding Citavi annotation is not linked to a knowledge item, we create a direct quotation and link the comment to that one
+
+                            // If the corresponding Citavi annotation is not linked to a knowledge item, we create a direct quotation from the annotation and link the comment to that one
                             else
                             { 
                                 pdfViewControl.GoToAnnotation(annotation);
@@ -220,16 +207,6 @@ namespace QuotationsToolbox
                         page.AnnotRemove(annotation);
                     }
                 }
-            }
-            foreach (Annotation annotation in annotations)
-            {
-                System.Diagnostics.Debug.WriteLine("CITAVI ANNOTATION");
-                foreach (Quad quad in annotation.Quads)
-                {
-                    System.Diagnostics.Debug.WriteLine("QUAD");
-                    System.Diagnostics.Debug.WriteLine("MinX: " + quad.MinX + ", MinY: " + quad.MinY + ", MaxX: " + quad.MaxX + ", MaxY: " + quad.MaxY);
-                }
-
             }
         }
     }

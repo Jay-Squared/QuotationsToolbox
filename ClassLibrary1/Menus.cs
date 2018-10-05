@@ -30,10 +30,12 @@ namespace QuotationsToolbox
 
             var referencesMenu = mainForm.GetMainCommandbarManager().GetReferenceEditorCommandbar(MainFormReferenceEditorCommandbarId.Menu).GetCommandbarMenu(MainFormReferenceEditorCommandbarMenuId.References);
 
-            var commandbarButtonConvertAnnotations = referencesMenu.AddCommandbarButton("ImportAnnotations", "Import external annotations as direct quotations in active reference");
-            commandbarButtonConvertAnnotations.HasSeparator = true;
+            var commandbarButtonImportAnnotations = referencesMenu.AddCommandbarButton("ImportAnnotations", "Import external annotations as direct quotations in active reference");
+            commandbarButtonImportAnnotations.HasSeparator = true;
 
             referencesMenu.AddCommandbarButton("ConvertExternalComments", "Convert external comments to comments in active reference");
+
+            var commandbarButtonExportAnnotations = referencesMenu.AddCommandbarButton("ExportAnnotations", "Export quotations in selected references as external annotations (There be dragons)");
 
             // Quotations Pop-Up Menu
 
@@ -114,11 +116,18 @@ namespace QuotationsToolbox
                         AnnotationImporter.ImportAnnotations(reference);
                     }
                     break;
+                case "ExportAnnotations":
+                    {
+                        e.Handled = true;
+                        List<Reference> references = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedReferences().ToList();
+                        AnnotationExporter.ExportAnnotations(references);
+                    }
+                    break;
                 case "ConvertExternalComments":
                     {
                         e.Handled = true;
                         Reference reference = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedReferences().FirstOrDefault();
-                        ExternalCommentConverter.ConvertComments(reference);
+                        AnnotationImporterComments.ConvertComments(reference);
                     }
                     break;
                 #endregion
