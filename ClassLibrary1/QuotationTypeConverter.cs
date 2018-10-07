@@ -14,6 +14,7 @@ namespace QuotationsToolbox
         {
             foreach (KnowledgeItem quotation in quotations)
             {
+                if (quotation.QuotationType == QuotationType.QuickReference) continue;
                 string quotationText = quotation.Text;
                 quotation.QuotationType = QuotationType.QuickReference;
                 quotation.Text = string.Empty;
