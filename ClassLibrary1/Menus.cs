@@ -127,7 +127,7 @@ namespace QuotationsToolbox
                     {
                         e.Handled = true;
                         Reference reference = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedReferences().FirstOrDefault();
-                        AnnotationImporterComments.ConvertComments(reference);
+                        CommentAnnotationsImporter.ConvertComments(reference);
                     }
                     break;
                 #endregion
