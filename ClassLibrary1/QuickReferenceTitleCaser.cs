@@ -51,7 +51,9 @@ namespace QuotationsToolbox
 
             // (1) Word Boundary, (2) One Letter, (Positive Lookahead) At Least Two More Letters
             text = Regex.Replace(text, @"(\b)([\p{L}])(?=[\p{L}]{2,})", s => (s.Value.ToUpper()));
-            
+
+            text = Regex.Replace(text, @"(\b)([IVX])([ivx]+)(\b)", s => (s.Value.ToLower()));
+
             // (1) Word Boundary, (2) One Letter, (3) Period
             text = Regex.Replace(text, @"(\b)([\p{L}])(\.)", s => (s.Value.ToUpper()));
 
@@ -62,10 +64,10 @@ namespace QuotationsToolbox
             text = Regex.Replace(text, " With ", " with ");
 
             // (1) Punctuation, (2) White Space, (3) Letter
-            text = Regex.Replace(text, @"([\.\-\)\:\?\!])([\s]*)([\p{L}])", s => (s.Value.ToUpper()));
+            text = Regex.Replace(text, @"([\.\-\)\:\?\!\-–])([\s]*)([\p{L}])", s => (s.Value.ToUpper()));
 
-            // (1) Beginning of Line, (2) Optional White Space, Digit, or Punctuation, (3) Letter
-            text = Regex.Replace(text, @"(^)([\s0-9\p{P}]*)([\p{L}])", s => (s.Value.ToUpper()));
+            // (1) Beginning of Line, (2) Optional White Space, Digit, or Punctuation, (3) Letter, (Negative Lookahead) Unless Followed by IVX or Punctuation
+            text = Regex.Replace(text, @"(^)([\s0-9\p{P}]*)([\p{L}])(?![ivx\p{P}])", s => (s.Value.ToUpper()));
 
             // (1) Beginning of Line, (2) Upper-Case Letter, (3) Mandatory Whitespace or Punctuation, (4) Letter
             text = Regex.Replace(text, @"(^)([\p{Lu}]+)([\s\p{P}]+)([\p{L}])", s => (s.Value.ToUpper()));

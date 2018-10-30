@@ -13,7 +13,7 @@ using pdftron.SDF;
 
 namespace QuotationsToolbox
 {
-    partial class CommentAnnotationsColorPicker
+    partial class AnnotationsImporterColorPicker
     {
         /// <summary>
         /// Required designer variable.
@@ -39,22 +39,27 @@ namespace QuotationsToolbox
         /// Required method for Designer support - do not modify
         /// the contents of this method with the code editor.
         /// </summary>
-        private void InitializeComponent(List<ColorPt> existingColorPts, out List<ColorPt> selectedColorPts)
+        private void InitializeComponent(string colorPickerCaption, List<ColorPt> existingColorPts, bool ImportEmptyAnnotations, out List<ColorPt> selectedColorPts)
         {
             selectedColorPts = new List<ColorPt>();
 
-            int formWidth = System.Convert.ToInt32(Math.Ceiling(new decimal(existingColorPts.Count) / 3) * 300);
+            int formWidth = 300;
             int formHeight = existingColorPts.Count * 50 + 160;
+
+            if (formWidth < 400) formWidth = 375;
 
             int buttonWidth = 75;
             int buttonHeight = 25;
 
             int padding = 10;
 
+            this.BackColor = System.Drawing.Color.White;
+
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.textbox1 = new TextBox();
             this.SuspendLayout();
+
             // 
             // button1
             // 
@@ -64,7 +69,6 @@ namespace QuotationsToolbox
             this.button1.TabIndex = 0;
             this.button1.Text = "OK";
             this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // button2
             // 
@@ -76,12 +80,19 @@ namespace QuotationsToolbox
             this.button2.UseVisualStyleBackColor = true;
             //
             // textbox 1
+
+            System.Drawing.Font font = new System.Drawing.Font("Calibri", 13.0f);
+
             this.textbox1.Location = new System.Drawing.Point(padding, padding);
-            this.textbox1.Text = "Select the annotation colors to be imported as comments:";
+            this.textbox1.Text = colorPickerCaption;
+            this.textbox1.Font = font;
+            this.textbox1.ForeColor = System.Drawing.Color.DarkSlateBlue ;
             this.textbox1.Size = new System.Drawing.Size(formWidth - 20, buttonHeight);
+            this.textbox1.BackColor = this.BackColor;
+            this.textbox1.BorderStyle = BorderStyle.None;
             //
             // 
-            // CommentAnnotationsColorPicker
+            // AnnotationsImporterColorPicker
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -91,9 +102,8 @@ namespace QuotationsToolbox
             this.Controls.Add(this.button1);
             this.Controls.Add(textbox1);
             this.CancelButton = this.button2;
-            this.Name = "CommentAnnotationsColorPicker";
-            this.Text = "CommentAnnotationsColorPicker";
-            this.Load += new System.EventHandler(this.CommentAnnotationsColorPicker_Load);
+            this.Name = "AnnotationsImporterColorPicker";
+            this.Text = "Color Picker";
             this.ResumeLayout(false);
 
             int i = 0;
@@ -114,24 +124,43 @@ namespace QuotationsToolbox
                 CheckBox checkBox = checkBoxes[i];
 
                 checkBox.Tag = i.ToString();
-                checkBox.Text = existingColorPtR.ToString() + ", " + existingColorPtG.ToString() + ", " + existingColorPtB.ToString() + ", " + existingColorPtA.ToString();
                 System.Drawing.Color foreColor = System.Drawing.Color.FromArgb(existingColorPtA, existingColorPtR, existingColorPtG, existingColorPtB);
                 checkBox.ForeColor = foreColor;
+                checkBox.BackColor = System.Drawing.Color.White;
+                checkBox.Width = formWidth - 30;
                 checkBox.Font = new System.Drawing.Font(checkBox.Font.FontFamily, checkBox.Font.Size, System.Drawing.FontStyle.Bold);
                 checkBox.AutoSize = true;
                 checkBox.Location = new System.Drawing.Point(padding, padding + buttonHeight + padding + i * padding + i * buttonHeight);
 
-                checkBox.Checked = foreColor == (System.Drawing.Color)SwissAcademic.Drawing.KnownColors.AnnotationComment100;
-
-                if (foreColor == (System.Drawing.Color)SwissAcademic.Drawing.KnownColors.AnnotationComment100) selectedColorPtsInBox.Add(existingColorPt);
-
                 this.Controls.Add(checkBox);
 
-                checkBox.Click += new EventHandler((sender, e) => checkBoxClick(sender, e, checkBox, existingColorPt, selectedColorPtsInBox, out selectedColorPtsInBox));
+                checkBox.Click += new EventHandler((sender, e) => ColorCheckboxClick(sender, e, checkBox, existingColorPt, selectedColorPtsInBox, out selectedColorPtsInBox));
                 selectedColorPts = selectedColorPtsInBox;
 
                 i++;
             }
+
+            ImportEmptyAnnotationsSelected = ImportEmptyAnnotations;
+
+            CheckBox emptyAnnotationsCheckBox = new CheckBox();
+            emptyAnnotationsCheckBox.Checked = ImportEmptyAnnotations;
+            emptyAnnotationsCheckBox.Width = formWidth - 30;
+            emptyAnnotationsCheckBox.Text = "Import empty annotations.";
+            emptyAnnotationsCheckBox.Location = new System.Drawing.Point(padding, formHeight - (40 + buttonHeight + padding));
+
+            this.Controls.Add(emptyAnnotationsCheckBox);
+
+            emptyAnnotationsCheckBox.Click += new EventHandler((sender, e) => YesNoCheckboxClick(sender, e, emptyAnnotationsCheckBox, ImportEmptyAnnotations, "ImportEmptyAnnotations"));
+
+            CheckBox redrawAnnotationsCheckBox = new CheckBox();
+            redrawAnnotationsCheckBox.Checked = true;
+            redrawAnnotationsCheckBox.Width = formWidth - 30;
+            redrawAnnotationsCheckBox.Text = "Redraw annotations.";
+            redrawAnnotationsCheckBox.Location = new System.Drawing.Point(padding, formHeight - (40 + 2* (buttonHeight + padding)));
+
+            this.Controls.Add(redrawAnnotationsCheckBox);
+
+            redrawAnnotationsCheckBox.Click += new EventHandler((sender, e) => YesNoCheckboxClick(sender, e, redrawAnnotationsCheckBox, redrawAnnotationsCheckBox.Checked, "RedrawAnnotations"));
 
             button1.Click += new EventHandler(cmdOK_Click);
             button2.Click += new EventHandler(cmdCancel_Click);
@@ -157,7 +186,7 @@ namespace QuotationsToolbox
             this.Close();
         }
 
-        private void checkBoxClick(object sender, System.EventArgs e, CheckBox checkBox, ColorPt selectedColorPt, List<ColorPt> selectedColorPts, out List<ColorPt> selectedColorPtsAfter)
+        private void ColorCheckboxClick(object sender, System.EventArgs e, CheckBox checkBox, ColorPt selectedColorPt, List<ColorPt> selectedColorPts, out List<ColorPt> selectedColorPtsAfter)
         {
             selectedColorPtsAfter = selectedColorPts;
             if (checkBox.Checked)
@@ -169,5 +198,62 @@ namespace QuotationsToolbox
                 if (selectedColorPtsAfter.Where(s => s == selectedColorPt).ToList().Count > 0) selectedColorPtsAfter.Remove(selectedColorPt);
             }
         }
+
+        private void YesNoCheckboxClick (object sender, System.EventArgs e, CheckBox checkBox, bool BoolIn, string optionName)
+        {
+            bool Result = BoolIn;
+            if (checkBox.Checked)
+            {
+                Result = true;
+            }
+            else
+            {
+                Result = false;
+            }
+            switch (optionName)
+            {
+                case "ImportEmptyAnnotations":
+                    ImportEmptyAnnotationsSelected = Result;
+                    break;
+                case "RedrawAnnotations":
+                    RedrawAnnotationsSelected = Result;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+
+            foreach (Control control in this.Controls)
+            {
+                if (control is CheckBox)
+                {
+                    CheckBox checkBox = control as CheckBox;
+                    System.Drawing.SolidBrush myBrush = new System.Drawing.SolidBrush(checkBox.ForeColor);
+                    System.Drawing.Graphics formGraphics;
+                    formGraphics = this.CreateGraphics();
+                    formGraphics.FillRectangle(myBrush, new System.Drawing.Rectangle(checkBox.Left + 20 , checkBox.Top, 60, checkBox.Height));
+                    myBrush.Dispose();
+                    formGraphics.Dispose();
+                }
+
+            }
+        }
+
+        public static bool RedrawAnnotationsSelected
+        {
+            get;
+            private set;
+        }
+
+        public static bool ImportEmptyAnnotationsSelected
+        {
+            get;
+            private set;
+        }
+
     }
 }

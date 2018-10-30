@@ -12,7 +12,7 @@ using SwissAcademic.Citavi.Shell;
 using SwissAcademic.Collections;
 namespace QuotationsToolbox
 {
-    class KnowledgeForms
+    class KnowledgeItemsForms
     {
         public static string NewPageRangeForm(string title, out string output)
         {

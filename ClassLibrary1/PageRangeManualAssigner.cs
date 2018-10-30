@@ -45,7 +45,7 @@ namespace QuotationsToolbox
 
             pdfViewControl.GoToAnnotation(annotation);
 
-            KnowledgeForms.NewPageRangeForm("Please enter the new page range:", out string data);
+            KnowledgeItemsForms.NewPageRangeForm("Please enter the new page range:", out string data);
 
             if (!String.IsNullOrEmpty(data)) quotation.PageRange = quotation.PageRange.Update(data);
 

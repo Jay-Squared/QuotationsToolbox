@@ -30,45 +30,65 @@ namespace QuotationsToolbox
 
             var referencesMenu = mainForm.GetMainCommandbarManager().GetReferenceEditorCommandbar(MainFormReferenceEditorCommandbarId.Menu).GetCommandbarMenu(MainFormReferenceEditorCommandbarMenuId.References);
 
-            var commandbarButtonImportAnnotations = referencesMenu.AddCommandbarButton("ImportAnnotations", "Import external annotations as direct quotations in active reference");
-            commandbarButtonImportAnnotations.HasSeparator = true;
+            var annotationsImportCommandbarMenu = referencesMenu.AddCommandbarMenu("AnnotationsImportCommandbarMenu", "Import annotations…", CommandbarItemStyle.Default);
 
-            referencesMenu.AddCommandbarButton("ConvertExternalComments", "Convert external comments to comments in active reference");
+            annotationsImportCommandbarMenu.HasSeparator = true;
 
-            var commandbarButtonExportAnnotations = referencesMenu.AddCommandbarButton("ExportAnnotations", "Export quotations in selected references as external annotations (There be dragons)");
+            annotationsImportCommandbarMenu.AddCommandbarButton("ImportDirectQuotations", "Import direct quotations in active document");
+            annotationsImportCommandbarMenu.AddCommandbarButton("ImportComments", "Import comments in active document");
+            annotationsImportCommandbarMenu.AddCommandbarButton("ImportQuickReferences", "Import quick references in active document");
+            annotationsImportCommandbarMenu.AddCommandbarButton("ImportSummaries", "Import summaries in active document");
+
+            var commandbarButtonExportAnnotations = referencesMenu.AddCommandbarButton("ExportAnnotations", "Export quotations in selected references as PDF highlights");
+            var commandbarButtonExportBookmarks = referencesMenu.AddCommandbarButton("ExportBookmarks", "Export quick references in selected references as PDF bookmarks");
+
+            // Preview Tool Menu
+
+            var previewCommandbarMenuTools = (mainForm.GetPreviewCommandbar(MainFormPreviewCommandbarId.Toolbar).GetCommandbarMenu(MainFormPreviewCommandbarMenuId.Tools));
+
+            var commandBarButtonMergeAnnotations = previewCommandbarMenuTools.AddCommandbarButton("MergeAnnotations", "Merge annotations", CommandbarItemStyle.Default);
+            commandBarButtonMergeAnnotations.HasSeparator = true;
 
             // Quotations Pop-Up Menu
 
             var referenceEditorQuotationsContextMenu = CommandbarMenu.Create(mainForm.GetReferenceEditorQuotationsCommandbarManager().ToolbarsManager.Tools["ReferenceEditorQuotationsContextMenu"] as PopupMenuTool);
 
-            var commandbarButtonKnowledgeItemsSortInReference = referenceEditorQuotationsContextMenu.AddCommandbarButton("KnowledgeItemsSortInReference", "Sort selected quotations by position in PDF");
+            var positionContextMenu = referenceEditorQuotationsContextMenu.AddCommandbarMenu("PositionContextMenu", "Quotation Position", CommandbarItemStyle.Default);
+            positionContextMenu.HasSeparator = true;
+
+            var commandbarButtonKnowledgeItemsSortInReference = positionContextMenu.AddCommandbarButton("KnowledgeItemsSortInReference", "Sort selected quotations by position in PDF");
             commandbarButtonKnowledgeItemsSortInReference.Shortcut = Shortcut.CtrlK;
-            commandbarButtonKnowledgeItemsSortInReference.HasSeparator = true;
-            var commandbarButtonPageAssignFromPositionInPDF = referenceEditorQuotationsContextMenu.AddCommandbarButton("PageAssignFromPositionInPDF", "Assign a page range to selected quote based on the PDF position");
+            var commandbarButtonPageAssignFromPositionInPDF = positionContextMenu.AddCommandbarButton("PageAssignFromPositionInPDF", "Assign a page range to selected quote based on the PDF position");
             commandbarButtonPageAssignFromPositionInPDF.HasSeparator = true;
-            referenceEditorQuotationsContextMenu.AddCommandbarButton("PageAssignFromPreviousQuotation", "Assign page range and numbering type from previous quote to selected quote");
-            var commandbarButtonShowQuotationAndSetPageRangeManually = referenceEditorQuotationsContextMenu.AddCommandbarButton("ShowQuotationAndSetPageRangeManually", "Assign page range manually after showing selected quote in PDF");
+            positionContextMenu.AddCommandbarButton("PageAssignFromPreviousQuotation", "Assign page range and numbering type from previous quote to selected quote");
+            var commandbarButtonShowQuotationAndSetPageRangeManually = positionContextMenu.AddCommandbarButton("ShowQuotationAndSetPageRangeManually", "Assign page range manually after showing selected quote in PDF");
             commandbarButtonShowQuotationAndSetPageRangeManually.Shortcut = Shortcut.CtrlDel;
 
-            var commandbarButtonCommentAnnotation = referenceEditorQuotationsContextMenu.AddCommandbarButton("CommentAnnotation", "Link comment to same text in PDF as related quote");
-            commandbarButtonCommentAnnotation.HasSeparator = true;
-            referenceEditorQuotationsContextMenu.AddCommandbarButton("LinkQuotations", "Link selected quote and comment");
-            var commandbarButtonCreateCommentOnQuotation = referenceEditorQuotationsContextMenu.AddCommandbarButton("CreateCommentOnQuotation", "Create comment on selected quote");
+            var commentsContextMenu = referenceEditorQuotationsContextMenu.AddCommandbarMenu("CommentsContextMenu", "Comments", CommandbarItemStyle.Default);
+
+            var commandbarButtonCommentAnnotation = commentsContextMenu.AddCommandbarButton("CommentAnnotation", "Link comment to same text in PDF as related quote");
+            commentsContextMenu.AddCommandbarButton("LinkQuotations", "Link selected quote and comment");
+            var commandbarButtonCreateCommentOnQuotation = commentsContextMenu.AddCommandbarButton("CreateCommentOnQuotation", "Create comment on selected quote");
             commandbarButtonCreateCommentOnQuotation.Shortcut = Shortcut.CtrlShiftK;
-            referenceEditorQuotationsContextMenu.AddCommandbarButton("SelectLinkedKnowledgeItem", "Jump to related quote or comment");
-            
-            var commandbarButtonCleanQuotationsText = referenceEditorQuotationsContextMenu.AddCommandbarButton("CleanQuotationsText", "Clean text of selected quotes");
+            var commandbarButtonSelectLinkedKnowledgeItem = commentsContextMenu.AddCommandbarButton("SelectLinkedKnowledgeItem", "Jump to related quote or comment");
+            commandbarButtonSelectLinkedKnowledgeItem.Shortcut = Shortcut.AltRightArrow;
+
+            var quickReferencesContextMenu = referenceEditorQuotationsContextMenu.AddCommandbarMenu("QuickReferencesContextMenu", "Quick References", CommandbarItemStyle.Default);
+            quickReferencesContextMenu.AddCommandbarButton("QuickReferenceTitleCase", "Write core statement in title case in selected quick references");
+            var commandbarButtonConvertDirectQuoteToRedHighlight = quickReferencesContextMenu.AddCommandbarButton("ConvertDirectQuoteToRedHighlight", "Convert selected quotations to quick references");
+
+
+            var commandbarButtonCleanQuotationsText = referenceEditorQuotationsContextMenu.AddCommandbarButton("CleanQuotationsText", "Clean text of selected quotations");
             commandbarButtonCleanQuotationsText.Shortcut = Shortcut.ShiftDel;
-            commandbarButtonCleanQuotationsText.HasSeparator = true;
-            referenceEditorQuotationsContextMenu.AddCommandbarButton("QuickReferenceTitleCase", "Write core statement in title case in selected quick references");
-
-            var commandbarButtonConvertDirectQuoteToRedHighlight = referenceEditorQuotationsContextMenu.AddCommandbarButton("ConvertDirectQuoteToRedHighlight", "Convert selected quotes to quick references");
-            commandbarButtonConvertDirectQuoteToRedHighlight.HasSeparator = true;
-
-            var commandbarButtonQuotationsMerge = referenceEditorQuotationsContextMenu.AddCommandbarButton("QuotationsMerge", "Merge selected quotes");
-            commandbarButtonQuotationsMerge.HasSeparator = true;
+            var commandbarButtonQuotationsMerge = referenceEditorQuotationsContextMenu.AddCommandbarButton("QuotationsMerge", "Merge selected quotations");
             var commandbarButtonCreateSummaryOnQuotations = referenceEditorQuotationsContextMenu.AddCommandbarButton("CreateSummaryOnQuotations", "Create summary of selected quotes");
 
+            // Reference Editor Attachment Pop-Up Menu
+
+            var referenceEditorUriLocationsContextMenu = CommandbarMenu.Create(mainForm.GetReferenceEditorElectronicLocationsCommandbarManager().ToolbarsManager.Tools["ReferenceEditorUriLocationsContextMenu"] as PopupMenuTool);
+            referenceEditorUriLocationsContextMenu.AddCommandbarButton("MoveAttachment", "Move selected attachment to a different folder");
+            referenceEditorUriLocationsContextMenu.HasSeparator = true;
+            
             // Knowledge Item Pop-Up Menu
 
             var knowledgeOrganizerKnowledgeItemsContextMenu = CommandbarMenu.Create(mainForm.GetKnowledgeOrganizerKnowledgeItemsCommandbarManager().ToolbarsManager.Tools["KnowledgeOrganizerKnowledgeItemsContextMenu"] as PopupMenuTool);
@@ -86,19 +106,6 @@ namespace QuotationsToolbox
             var commandbarButtonSortKnowledgeItemsInCategory = knowledgeOrganizerCategoriesColumnContextMenu.AddCommandbarButton("SortKnowledgeItemsInCategory", "Sort all knowledge items in this category by reference and position");
             commandbarButtonSortKnowledgeItemsInCategory.HasSeparator = true;
 
-            //System.Diagnostics.Debug.WriteLine("Toolbars");
-
-            //System.Diagnostics.Debug.WriteLine(mainForm.GetKnowledgeOrganizerKnowledgeItemsCommandbarManager().ToolbarsManager.Tools.ToString());
-
-            //foreach (ToolBase tool in (mainForm.GetKnowledgeOrganizerKnowledgeItemsCommandbarManager().ToolbarsManager.Tools))
-            //{
-            //    System.Diagnostics.Debug.WriteLine(tool.Key.ToString());
-            //}
-            //foreach (ToolBase tool in (mainForm.GetKnowledgeOrganizerCategoriesCommandbarManager().ToolbarsManager.Tools))
-            //{
-            //    System.Diagnostics.Debug.WriteLine(tool.Key.ToString());
-            //}
-
             // Fin
 
             base.OnHostingFormLoaded(hostingForm);
@@ -108,26 +115,55 @@ namespace QuotationsToolbox
         {
             switch (e.Key)
             {
-                #region Reference-based commands
-                case "ImportAnnotations":
+                #region Annotation-based menus
+                case "MergeAnnotations":
                     {
                         e.Handled = true;
-                        Reference reference = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedReferences().FirstOrDefault();
-                        AnnotationImporter.ImportAnnotations(reference);
+                        AnnotationsAndQuotationsMerger.MergeAnnotations();
                     }
                     break;
+                #endregion            
+                #region Reference-based commands
                 case "ExportAnnotations":
                     {
                         e.Handled = true;
                         List<Reference> references = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedReferences().ToList();
-                        AnnotationExporter.ExportAnnotations(references);
+                        AnnotationsExporter.ExportAnnotations(references);
                     }
                     break;
-                case "ConvertExternalComments":
+                case "ExportBookmarks":
+                    {
+                        e.Handled = true;
+                        List<Reference> references = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedReferences().ToList();
+                        QuickReferenceBookmarkExporter.ExportBookmarks(references);
+                    }
+                    break;
+                case "ImportComments":
                     {
                         e.Handled = true;
                         Reference reference = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedReferences().FirstOrDefault();
-                        CommentAnnotationsImporter.ConvertComments(reference);
+                        AnnotationsImporter.AnnotationsImport(reference, QuotationType.Comment);
+                    }
+                    break;
+                case "ImportDirectQuotations":
+                    {
+                        e.Handled = true;
+                        Reference reference = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedReferences().FirstOrDefault();
+                        AnnotationsImporter.AnnotationsImport(reference, QuotationType.DirectQuotation);
+                    }
+                    break;
+                case "ImportQuickReferences":
+                    {
+                        e.Handled = true;
+                        Reference reference = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedReferences().FirstOrDefault();
+                        AnnotationsImporter.AnnotationsImport(reference, QuotationType.QuickReference);
+                    }
+                    break;
+                case "ImportSummaries":
+                    {
+                        e.Handled = true;
+                        Reference reference = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedReferences().FirstOrDefault();
+                        AnnotationsImporter.AnnotationsImport(reference, QuotationType.Summary);
                     }
                     break;
                 #endregion
@@ -200,7 +236,7 @@ namespace QuotationsToolbox
                     {
                         e.Handled = true;
                         List<KnowledgeItem> quotations = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedQuotations().ToList();
-                        QuotationMerger.MergeQuotations(quotations);
+                        AnnotationsAndQuotationsMerger.MergeQuotations(quotations);
                     }
                     break;
                 case "QuickReferenceTitleCase":
@@ -215,6 +251,14 @@ namespace QuotationsToolbox
                         e.Handled = true;
                         List<KnowledgeItem> quotations = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedQuotations().ToList();
                         PageRangeManualAssigner.AssignPageRangeManuallyAfterShowingAnnotation();
+                    }
+                    break;
+                #endregion
+                #region ReferenceEditorUriLocationsPopupMenu
+                case "MoveAttachment":
+                    {
+                        e.Handled = true;
+                        LocationMover.MoveAttachment();
                     }
                     break;
                 #endregion

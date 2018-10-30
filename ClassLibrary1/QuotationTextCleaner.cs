@@ -17,8 +17,18 @@ namespace QuotationsToolbox
         {
             foreach (KnowledgeItem quotation in quotations)
             {
-                string text = quotation.Text;
-                quotation.Text = TextCleaner(text);
+                string text = string.Empty;
+
+                if (quotation.QuotationType == QuotationType.QuickReference)
+                {
+                    text = quotation.CoreStatement;
+                    quotation.CoreStatement = TextCleaner(text);
+                }
+                else
+                {
+                    text = quotation.Text;
+                    quotation.Text = TextCleaner(text);
+                }
             }
         }
         public static string TextCleaner(string text)

@@ -20,7 +20,7 @@ using pdftron.SDF;
 
 namespace QuotationsToolbox
 {
-    class AnnotationExporter
+    class AnnotationsExporter
     {
         public static void ExportAnnotations(List<Reference> references)
         {
@@ -37,19 +37,25 @@ namespace QuotationsToolbox
             {
                 List<KnowledgeItem> quotations = reference.Quotations.Where(q => q.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).Count() > 0).ToList();
 
-                List<LinkedResource> linkedResources = quotations.Select(d => ((Annotation)d.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).ToList().FirstOrDefault().Target).Location.Address).Distinct().ToList();
+                List<LinkedResource> linkedResources = reference.Locations.Where(l => l.LocationType == LocationType.ElectronicAddress).Select(l => (LinkedResource)l.Address).ToList();
+
+                List<KnowledgeItem> comments = quotations.Where(q => q.QuotationType == QuotationType.Comment && q.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).Count() > 0).ToList();
 
                 List<KnowledgeItem> directQuotations = quotations.Where(q => q.QuotationType == QuotationType.DirectQuotation && q.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).Count() > 0).ToList();
 
                 List<KnowledgeItem> quickReferences = quotations.Where(q => q.QuotationType == QuotationType.QuickReference && q.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).Count() > 0).ToList();
 
-                List<KnowledgeItem> comments = quotations.Where(q => q.QuotationType == QuotationType.Comment && q.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).Count() > 0).ToList();
+                List<KnowledgeItem> summaries = quotations.Where(q => q.QuotationType == QuotationType.Summary && q.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).Count() > 0).ToList();
 
                 foreach (Location location in reference.Locations)
                 {
                     foreach (Annotation annotation in location.Annotations.Where(a => a.Visible == true && a.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).Count() == 0).ToList())
                     {
                         location.Annotations.Remove(annotation);  
+                    }
+                    foreach (Annotation annotation in location.Annotations.Where(a => a.Visible == false && a.EntityLinks.Where(e => e.Indication == EntityLink.SourceAnnotLinkIndication).Count() == 0 && a.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).Count() == 0).ToList())
+                    {
+                        location.Annotations.Remove(annotation);
                     }
                 }
 
@@ -62,19 +68,33 @@ namespace QuotationsToolbox
                     Document document = new Document(pathToFile);
                     if (document == null) continue;
 
-                    List<KnowledgeItem> directQuotationsAtThisLocation = directQuotations.Where(d => ((Annotation)d.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).ToList().FirstOrDefault().Target).Location.Address == linkedResource).ToList();
+                    previewControl.ShowNoPreview();
 
-                    List<KnowledgeItem> quickReferencesAtThisLocation = quickReferences.Where(d => ((Annotation)d.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).ToList().FirstOrDefault().Target).Location.Address == linkedResource).ToList();
 
                     List<KnowledgeItem> commentsAtThisLocation = comments.Where(d => ((Annotation)d.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).ToList().FirstOrDefault().Target).Location.Address == linkedResource).ToList();
 
-                    List<Annotation> directQuotationAnnotationsAtThisLocation = directQuotationsAtThisLocation.Select(d => (Annotation)d.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).ToList().FirstOrDefault().Target).ToList();
+                    List<KnowledgeItem> directQuotationsAtThisLocation = directQuotations.Where(d => d.EntityLinks != null && d.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication) != null && ((Annotation)d.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).ToList().FirstOrDefault().Target).Location.Address == linkedResource).ToList();
+
+                    List<KnowledgeItem> quickReferencesAtThisLocation = quickReferences.Where(d => ((Annotation)d.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).ToList().FirstOrDefault().Target).Location.Address == linkedResource).ToList();
+
+                    List<KnowledgeItem> summariesAtThisLocation = summaries.Where(d => ((Annotation)d.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).ToList().FirstOrDefault().Target).Location.Address == linkedResource).ToList();
 
                     List<Annotation> commentAnnotationsAtThisLocation = commentsAtThisLocation.Select(d => (Annotation)d.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).ToList().FirstOrDefault().Target).ToList();
 
-                    List<Annotation> quickReferenceAnnotationsAtThisLocation = quickReferences.Select(d => (Annotation)d.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).ToList().FirstOrDefault().Target).ToList();
+                    List<Annotation> directQuotationAnnotationsAtThisLocation = directQuotationsAtThisLocation.Select(d => (Annotation)d.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).ToList().FirstOrDefault().Target).ToList();
+
+                    List<Annotation> quickReferenceAnnotationsAtThisLocation = quickReferencesAtThisLocation.Select(d => (Annotation)d.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).ToList().FirstOrDefault().Target).ToList();
+
+                    List<Annotation> summaryAnnotationsAtThisLocation = summaries.Select(d => (Annotation)d.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).ToList().FirstOrDefault().Target).ToList();
+
 
                     DeleteAllAnnotations(document);
+
+                    foreach (Annotation annotation in summaryAnnotationsAtThisLocation)
+                    {
+                        System.Drawing.Color highlightColor = KnownColors.AnnotationSummary100;
+                        ExportAnnotationToPDF(annotation, highlightColor, document, coveredRects, out coveredRects);
+                    }
 
                     foreach (Annotation annotation in directQuotationAnnotationsAtThisLocation)
                     {
@@ -269,29 +289,25 @@ namespace QuotationsToolbox
                 pdftron.PDF.Page page = document.GetPage(i);
                 int annotCount = page.GetNumAnnots();
 
-                List<Annot> otherAnnots = new List<Annot>();
+                List<Annot> annotsToDelete = new List<Annot>();
 
-                for (int j = 1; j <= page.GetNumAnnots(); j++)
+                for (int j = 0; j < page.GetNumAnnots(); j++)
                 {
                     Annot annot = page.GetAnnot(j);
-                    if (annot.GetSDFObj() != null && annot.GetType() == Annot.Type.e_Highlight)
+                    if (annot.GetSDFObj() != null &&
+                        annot.GetType() == Annot.Type.e_Highlight)
                     {
-                        
+                        annotsToDelete.Add(annot);
                     }
                     else
                     {
-                        otherAnnots.Add(annot);
+
                     }
                 }
 
-                while (page.GetNumAnnots() > 0)
+                foreach (Annot annot in annotsToDelete)
                 {
-                    page.AnnotRemove(0);
-                }
-
-                foreach (Annot otherAnnot in otherAnnots)
-                {
-                    page.AnnotPushBack(otherAnnot);
+                    page.AnnotRemove(annot);
                 }
             }
         }
