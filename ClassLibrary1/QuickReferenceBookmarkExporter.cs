@@ -105,7 +105,6 @@ namespace QuotationsToolbox
 
             if (foo.IsValid())
             {
-                System.Diagnostics.Debug.WriteLine(bookmarkTitle + ", p. " + annotation.Quads.FirstOrDefault().PageIndex.ToString());
                 return;
             }
             

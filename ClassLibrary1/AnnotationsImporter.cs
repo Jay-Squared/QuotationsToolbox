@@ -58,38 +58,6 @@ namespace QuotationsToolbox
 
             // The Magic
 
-            foreach (Annotation annotation in location.Annotations)
-            {
-                System.Diagnostics.Debug.WriteLine("Annotation:");
-                var obj1 = annotation;
-                foreach (System.ComponentModel.PropertyDescriptor descriptor in System.ComponentModel.TypeDescriptor.GetProperties(obj1))
-                {
-                    string name = descriptor.Name;
-                    object value = descriptor.GetValue(obj1);
-                    System.Diagnostics.Debug.WriteLine("{0}={1}", name, value);
-                }
-                foreach (EntityLink link in annotation.EntityLinks)
-                {
-                    var obj2 = link;
-                    foreach (System.ComponentModel.PropertyDescriptor descriptor in System.ComponentModel.TypeDescriptor.GetProperties(obj2))
-                    {
-                        string name = descriptor.Name;
-                        object value = descriptor.GetValue(obj2);
-                        System.Diagnostics.Debug.WriteLine("{0}={1}", name, value);
-                    }
-                }
-                foreach (Quad quad in annotation.Quads)
-                {
-                    var obj = quad;
-                    foreach (System.ComponentModel.PropertyDescriptor descriptor in System.ComponentModel.TypeDescriptor.GetProperties(obj))
-                    {
-                        string name = descriptor.Name;
-                        object value = descriptor.GetValue(obj);
-                        System.Diagnostics.Debug.WriteLine("{0}={1}", name, value);
-                    }
-                }
-            }
-
             switch (quotationType)
             {
                 case QuotationType.Comment:

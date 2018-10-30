@@ -123,9 +123,6 @@
     <Compile Include="SummaryCreator.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="QuotationsToolbox.dll" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="AnnotationsImporterColorPicker.resx">
       <DependentUpon>AnnotationsImporterColorPicker.cs</DependentUpon>
     </EmbeddedResource>

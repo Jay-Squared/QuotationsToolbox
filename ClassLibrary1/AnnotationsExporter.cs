@@ -190,7 +190,6 @@ namespace QuotationsToolbox
                 if (boxes.Select(b => new { b.x1, b.y1, b.x2, b.y2 }).ToList().Intersect(coveredRectsAfter.Select(b => new { b.x1, b.y1, b.x2, b.y2 }).ToList()).Count() == boxes.Count())
                 {
                     newAnnot = CreateHighlightAnnot(document, boxes, colorPt, 1);
-                    System.Diagnostics.Debug.WriteLine("Intersects");
                 }
                 else
                 {
