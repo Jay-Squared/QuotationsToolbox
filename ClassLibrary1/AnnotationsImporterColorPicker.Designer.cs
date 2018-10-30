@@ -152,6 +152,8 @@ namespace QuotationsToolbox
 
             emptyAnnotationsCheckBox.Click += new EventHandler((sender, e) => YesNoCheckboxClick(sender, e, emptyAnnotationsCheckBox, ImportEmptyAnnotations, "ImportEmptyAnnotations"));
 
+            RedrawAnnotationsSelected = true;
+
             CheckBox redrawAnnotationsCheckBox = new CheckBox();
             redrawAnnotationsCheckBox.Checked = true;
             redrawAnnotationsCheckBox.Width = formWidth - 30;

@@ -54,7 +54,7 @@ namespace QuotationsToolbox
             int annotationsImportedCount = 0;
 
             bool ImportEmptyAnnotations = false;
-            bool RedrawAnnotations = false;
+            bool RedrawAnnotations = true;
 
             // The Magic
 
