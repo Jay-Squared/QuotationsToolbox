@@ -80,6 +80,9 @@ namespace QuotationsToolbox
             }
             quotationSmartRepeaterAsQuotationSmartRepeater.SelectAndActivate(lastComment, true);
             pdfViewControl.GoToAnnotation(lastAnnotation);
+
+
+            Program.ActiveProjectShell.ShowKnowledgeItemFormForExistingItem(Program.ActiveProjectShell.PrimaryMainForm, lastComment);
         }
     }
 }
