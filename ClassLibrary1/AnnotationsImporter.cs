@@ -681,7 +681,7 @@ namespace QuotationsToolbox
 
             if (quads.Count > 2)
             {
-                tempQuads.Add(quads[0]);
+                if (MidPoint(quads[0].MinY, quads[0].MaxY) > quads[1].MaxY) tempQuads.Add(quads[0]);
                 for (int i = 1; i < quads.Count - 1; i++)
                 {
                     if ((quads[i].MaxX - quads[i].MinX) > 0.50 * (maxX - minX)) tempQuads.Add(quads[i]);
@@ -753,10 +753,10 @@ namespace QuotationsToolbox
 
             if (quads.Count > 2)
             {
-                tempQuads.Add(quads[0]);
+                if (MidPoint(quads[0].MinY, quads[0].MaxY) > quads[1].MaxY) tempQuads.Add(quads[0]);
                 for (int i = 1; i < quads.Count - 1; i++)
                 {
-                    if ((quads[i].MaxX - quads[i].MinX) > 0.30 * (maxX - minX)) tempQuads.Add(quads[i]);
+                    if ((quads[i].MaxX - quads[i].MinX) > 0.50 * (maxX - minX)) tempQuads.Add(quads[i]);
                 }
                 tempQuads.Add(quads[quads.Count - 1]);
                 quads = tempQuads;
