@@ -655,16 +655,23 @@ namespace QuotationsToolbox
                     temporaryAnnotationQuads.Add(new Quad(firstQuad.PageIndex, false, firstQuad.X1, firstQuadMidY - yValuesOffset / 2, firstQuad.X2, firstQuadMidY + yValuesOffset));
                     break;
                 case 2:
-                    temporaryAnnotationQuads.Add(new Quad(firstQuad.PageIndex, false, firstQuad.X1, firstQuad.MinY + yValuesOffset, firstQuad.X2, firstQuad.MaxY - yValuesOffset));
-                    temporaryAnnotationQuads.Add(new Quad(lastQuad.PageIndex, false, lastQuad.X1, lastQuadMidY - averageLineHeight / 2, lastQuad.X2, lastQuad.MaxY - yValuesOffset));
+                    if (lastQuadMidY > firstQuad.MinY)
+                    {
+                        temporaryAnnotationQuads.Add(new Quad(firstQuad.PageIndex, false, minX, lastQuad.MinY, maxX, firstQuad.MaxY));
+                    }
+                    else
+                    {
+                        temporaryAnnotationQuads.Add(new Quad(firstQuad.PageIndex, false, firstQuad.X1, firstQuad.MinY + yValuesOffset, firstQuad.X2, firstQuad.MaxY - yValuesOffset));
+                        temporaryAnnotationQuads.Add(new Quad(lastQuad.PageIndex, false, lastQuad.X1, lastQuadMidY - averageLineHeight / 2, lastQuad.X2, lastQuad.MaxY - yValuesOffset));
+                    }
                     break;
                 default:
                     secondQuad = quads[1];
                     secondToLastQuad = quads[quads.Count - 2];
 
-                    temporaryAnnotationQuads.Add(new Quad(firstQuad.PageIndex, false, firstQuad.X1, firstQuad.MinY + yValuesOffset, firstQuad.X2, firstQuad.MaxY- yValuesOffset));
+                    temporaryAnnotationQuads.Add(new Quad(firstQuad.PageIndex, false, firstQuad.X1, firstQuad.MinY + yValuesOffset, maxX, firstQuad.MaxY- yValuesOffset));
                     temporaryAnnotationQuads.Add(new Quad(secondQuad.PageIndex, false, minX, secondToLastQuad.MinY + yValuesOffset, maxX, secondQuad.MaxY - yValuesOffset));
-                    temporaryAnnotationQuads.Add(new Quad(lastQuad.PageIndex, false, lastQuad.X1, lastQuadMidY - averageLineHeight/2, lastQuad.X2, lastQuad.MaxY - yValuesOffset));
+                    temporaryAnnotationQuads.Add(new Quad(lastQuad.PageIndex, false, minX, lastQuadMidY - averageLineHeight/2, lastQuad.X2, lastQuad.MaxY - yValuesOffset));
 
                     break;
             }
@@ -681,6 +688,8 @@ namespace QuotationsToolbox
 
             double maxX = quads.Select(q => q.MaxX).Max();
             double minX = quads.Select(q => q.MinX).Min();
+
+            if (quads.Count == 0) return null;
 
             if (quads.Count > 2)
             {
@@ -701,8 +710,15 @@ namespace QuotationsToolbox
                     newQuads = quads;
                     break;
                 case 2:
-                    newQuads.Add(new Quad(quads[0].PageIndex, false, quads[0].MinX, MidPoint(quads[0].MaxY, quads[1].MinY), quads[0].MaxX, quads[0].MaxY));
-                    newQuads.Add(new Quad(quads[1].PageIndex, false, quads[1].MinX, quads[1].MinY, quads[1].MaxX, MidPoint(quads[0].MaxY, quads[1].MinY)));
+                    if (MidPoint(quads[1].MaxY, quads[1].MinY) > quads[0].MinY)
+                    {
+                        newQuads.Add(new Quad(quads[0].PageIndex, false, minX, quads[1].MinY, maxX, quads[0].MaxY));
+                    }
+                    else
+                    {
+                        newQuads.Add(new Quad(quads[0].PageIndex, false, quads[0].MinX, MidPoint(quads[0].MaxY, quads[1].MinY), quads[0].MaxX, quads[0].MaxY));
+                        newQuads.Add(new Quad(quads[1].PageIndex, false, quads[1].MinX, quads[1].MinY, quads[1].MaxX, MidPoint(quads[0].MaxY, quads[1].MinY)));
+                    }
                     break;
                 default:
                     newQuads.Add(new Quad(quads[0].PageIndex, false, quads[0].MinX, MidPoint(quads[0].MinY, quads[1].MaxY), maxX, quads[0].MaxY));
