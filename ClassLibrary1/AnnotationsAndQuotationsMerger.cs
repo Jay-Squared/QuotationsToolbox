@@ -236,6 +236,12 @@ namespace QuotationsToolbox
                 AnnotationsImporter.LinkWithKnowledgeItemIndicationAnnotation(originalAnnotation, newAnnotation);
             }
 
+            foreach (Annotation soureAnnotation in soureAnnotations)
+            {
+                soureAnnotation.Visible = false;
+                AnnotationsImporter.LinkWithKnowledgeItemIndicationAnnotation(soureAnnotation, newAnnotation);
+            }
+
             foreach (Annotation redundantAnnotation in redundantAnnotations)
             {
                 location.Annotations.Remove(redundantAnnotation);
