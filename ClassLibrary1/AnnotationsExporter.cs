@@ -37,7 +37,7 @@ namespace QuotationsToolbox
             {
                 List<KnowledgeItem> quotations = reference.Quotations.Where(q => q.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).Count() > 0).ToList();
 
-                List<LinkedResource> linkedResources = reference.Locations.Where(l => l.LocationType == LocationType.ElectronicAddress).Select(l => (LinkedResource)l.Address).ToList();
+                List<LinkedResource> linkedResources = reference.Locations.Where(l => l.LocationType == LocationType.ElectronicAddress && l.Address.LinkedResourceType == LinkedResourceType.AttachmentFile).Select(l => (LinkedResource)l.Address).ToList();
 
                 List<KnowledgeItem> comments = quotations.Where(q => q.QuotationType == QuotationType.Comment && q.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).Count() > 0).ToList();
 
