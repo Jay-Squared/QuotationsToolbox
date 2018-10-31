@@ -62,6 +62,9 @@ namespace QuotationsToolbox
 
                         ExportQuickReferenceAsBookmark(annotation, document);
                     }
+
+                    DeleteExtraBookmarks(quickReferencesAtThisLocation.Select(q => q.CoreStatement).ToList(), document);
+
                     try
                     {
                         document.Save(pathToFile, SDFDoc.SaveOptions.e_remove_unused);
@@ -111,6 +114,25 @@ namespace QuotationsToolbox
             document.AddRootBookmark(bookmark);
 
             bookmark.SetAction(pdftron.PDF.Action.CreateGoto(destination));
+
+        }
+        public static void DeleteExtraBookmarks(List<string> quickreferences, Document document)
+        {
+            List<pdftron.PDF.Bookmark> bookmarks = new List<pdftron.PDF.Bookmark>();
+
+            pdftron.PDF.Bookmark bookmark = document.GetFirstBookmark();
+
+            while (bookmark.IsValid())
+            {
+                bookmarks.Add(bookmark);
+                bookmark = bookmark.GetNext();
+
+            }
+
+            foreach (pdftron.PDF.Bookmark b in bookmarks)
+            {
+                if (!quickreferences.Contains(b.GetTitle())) b.Delete();
+            }
 
         }
     }
