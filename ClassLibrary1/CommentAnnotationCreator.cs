@@ -48,6 +48,13 @@ namespace QuotationsToolbox
                     Location location = mainQuotationAnnotation.Location;
                     if (location == null) return;
 
+                    List<Annotation> oldAnnotations = quotation.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).Select(e => (Annotation)e.Target).ToList();
+
+                    foreach (Annotation oldAnnotation in oldAnnotations)
+                    {
+                        location.Annotations.Remove(oldAnnotation);
+                    }
+
                     Annotation newAnnotation = new Annotation(location);
 
                     newAnnotation.OriginalColor = System.Drawing.Color.FromArgb(255, 255, 255, 0);
