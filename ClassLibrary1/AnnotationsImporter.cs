@@ -598,6 +598,74 @@ namespace QuotationsToolbox
 
         public static List<Quad> TemporaryQuads(this List<Quad> quads)
         {
+            //List<Quad> tempQuads = new List<Quad>();
+
+            //quads = quads.OrderByDescending(q => MidPoint(q.MaxY, q.MinY)).ToList();
+
+            //double maxX = quads.Select(q => q.MaxX).Max();
+            //double minX = quads.Select(q => q.MinX).Min();
+
+            //if (quads.Count > 2)
+            //{
+            //    tempQuads.Add(quads[0]);
+            //    for (int i = 1; i < quads.Count - 1; i++)
+            //    {
+            //        if ((quads[i].MaxX - quads[i].MinX) > 0.25 * (maxX - minX)) tempQuads.Add(quads[i]);
+            //    }
+            //    tempQuads.Add(quads[quads.Count - 1]);
+            //    quads = tempQuads;
+            //}
+
+            //List<Quad> temporaryAnnotationQuads = new List<Quad>();
+
+            //int l = quads.Count - 1;
+
+            //double scalingFactor = 0.5;
+
+            //double averageLineHeight = 0;
+            //double yValuesOffset = 0;
+
+            //if (quads.Count == 0) return null;
+
+            //if (quads.Count == 1)
+            //{
+            //    averageLineHeight = (quads[0].MaxY - quads[0].MinY);
+            //    yValuesOffset = (averageLineHeight - averageLineHeight * scalingFactor) / 2;
+            //}
+            //else
+            //{
+            //    averageLineHeight = (MidPoint(quads[0].MaxY, quads[0].MinY) - MidPoint(quads[l].MaxY, quads[l].MinY)) / (l);
+            //    yValuesOffset = (averageLineHeight - averageLineHeight * scalingFactor) / 2;
+            //}
+
+            //switch (quads.Count)
+            //{
+            //    case 1:
+            //        temporaryAnnotationQuads.Add(new Quad(quads[0].PageIndex, false, quads[0].X1, MidPoint(quads[0].MaxY, quads[0].MinY) - yValuesOffset / 2, quads[0].X2, MidPoint(quads[0].MaxY, quads[0].MinY) + yValuesOffset));
+            //        break;
+            //    case 2:
+            //        if (MidPoint(quads[l].MaxY, quads[l].MinY) > quads[0].MinY)
+            //        {
+            //            temporaryAnnotationQuads.Add(new Quad(quads[0].PageIndex, false, minX, quads[l].MinY, maxX, quads[0].MaxY));
+            //        }
+            //        else
+            //        {
+            //            temporaryAnnotationQuads.Add(new Quad(quads[0].PageIndex, false, quads[0].X1, quads[0].MinY + yValuesOffset, quads[0].X2, quads[0].MaxY - yValuesOffset));
+            //            temporaryAnnotationQuads.Add(new Quad(quads[l].PageIndex, false, quads[l].X1, MidPoint(quads[l].MaxY, quads[l].MinY) - averageLineHeight / 2, quads[l].X2, quads[l].MaxY - yValuesOffset));
+            //        }
+            //        break;
+            //    default:
+            //        quads[1] = quads[1];
+
+            //        temporaryAnnotationQuads.Add(new Quad(quads[0].PageIndex, false, quads[0].X1, quads[0].MinY + yValuesOffset, maxX, quads[0].MaxY- yValuesOffset));
+            //        temporaryAnnotationQuads.Add(new Quad(quads[1].PageIndex, false, minX, quads[l-1].MinY + yValuesOffset, maxX, quads[1].MaxY - yValuesOffset));
+            //        temporaryAnnotationQuads.Add(new Quad(quads[l].PageIndex, false, minX, MidPoint(quads[l].MaxY, quads[l].MinY) - averageLineHeight/2, quads[l].X2, quads[l].MaxY - yValuesOffset));
+
+            //        break;
+            //}
+            //return temporaryAnnotationQuads;
+
+            List<Quad> newQuads = new List<Quad>();
             List<Quad> tempQuads = new List<Quad>();
 
             quads = quads.OrderByDescending(q => q.MinY).ToList();
@@ -605,82 +673,74 @@ namespace QuotationsToolbox
             double maxX = quads.Select(q => q.MaxX).Max();
             double minX = quads.Select(q => q.MinX).Min();
 
+            double scalingFactor = 0.5;
+            double averageLineHeight = 0;
+            double yValuesOffset = 0;
+
+            if (quads.Count == 0) return null;
+
             if (quads.Count > 2)
             {
                 tempQuads.Add(quads[0]);
                 for (int i = 1; i < quads.Count - 1; i++)
                 {
-                    if ((quads[i].MaxX - quads[i].MinX) > 0.25 * (maxX - minX)) tempQuads.Add(quads[i]);
+                    if ((quads[i].MaxX - quads[i].MinX) > 0.50 * (maxX - minX)) tempQuads.Add(quads[i]);
                 }
                 tempQuads.Add(quads[quads.Count - 1]);
                 quads = tempQuads;
             }
 
-            List<Quad> temporaryAnnotationQuads = new List<Quad>();
+            int l = quads.Count - 1;
 
-            double scalingFactor = 0.5;
-
-            Quad firstQuad = new Quad();
-            Quad secondQuad = new Quad();
-            Quad secondToLastQuad = new Quad();
-            Quad lastQuad = new Quad();
-
-            double firstQuadMidY = 0;
-            double lastQuadMidY = 0;
-            double averageLineHeight = 0;
-            double yValuesOffset = 0;
-
-            if (quads.Count == 0) return null;
-            if (quads.Count >= 1)
-            {
-                firstQuad = quads[0];
-                lastQuad = quads[quads.Count - 1];
-                firstQuadMidY = (firstQuad.MaxY + firstQuad.MinY) / 2;
-                lastQuadMidY = (lastQuad.MaxY + lastQuad.MinY) / 2;
-            }
             if (quads.Count == 1)
             {
-                averageLineHeight = (firstQuad.MaxY - firstQuad.MinY);
-                yValuesOffset = (averageLineHeight - averageLineHeight * scalingFactor) / 2;
+                averageLineHeight = (quads[0].MaxY - quads[0].MinY);
+                yValuesOffset = (averageLineHeight - averageLineHeight * (1- scalingFactor)) / 2;
             }
             else
             {
-                averageLineHeight = (firstQuadMidY - lastQuadMidY) / (quads.Count - 1);
-                yValuesOffset = (averageLineHeight - averageLineHeight * scalingFactor) / 2;
+                averageLineHeight = (MidPoint(quads[0].MaxY, quads[0].MinY) - MidPoint(quads[l].MaxY, quads[l].MinY)) / (l);
+                yValuesOffset = (averageLineHeight * scalingFactor) / 2;
             }
+
+            quads = quads.OrderByDescending(q => MidPoint(q.MaxY, q.MinY)).ToList();
 
             switch (quads.Count)
             {
+                case 0:
+                    break;
                 case 1:
-                    temporaryAnnotationQuads.Add(new Quad(firstQuad.PageIndex, false, firstQuad.X1, firstQuadMidY - yValuesOffset / 2, firstQuad.X2, firstQuadMidY + yValuesOffset));
+                    newQuads = quads;
                     break;
                 case 2:
-                    if (lastQuadMidY > firstQuad.MinY)
+                    if (MidPoint(quads[1].MaxY, quads[1].MinY) > quads[0].MinY)
                     {
-                        temporaryAnnotationQuads.Add(new Quad(firstQuad.PageIndex, false, minX, lastQuad.MinY, maxX, firstQuad.MaxY));
+                        newQuads.Add(new Quad(quads[0].PageIndex, false, minX, quads[1].MinY, maxX, quads[0].MaxY));
                     }
                     else
                     {
-                        temporaryAnnotationQuads.Add(new Quad(firstQuad.PageIndex, false, firstQuad.X1, firstQuad.MinY + yValuesOffset, firstQuad.X2, firstQuad.MaxY - yValuesOffset));
-                        temporaryAnnotationQuads.Add(new Quad(lastQuad.PageIndex, false, lastQuad.X1, lastQuadMidY - averageLineHeight / 2, lastQuad.X2, lastQuad.MaxY - yValuesOffset));
+                        newQuads.Add(new Quad(quads[0].PageIndex, false, quads[0].MinX, MidPoint(quads[0].MinY, quads[0].MaxY) - yValuesOffset, maxX, MidPoint(quads[0].MinY, quads[0].MaxY) + yValuesOffset));
+                        newQuads.Add(new Quad(quads[l].PageIndex, false, minX, MidPoint(quads[l].MinY, quads[l].MaxY) - yValuesOffset, quads[l].MaxX, MidPoint(quads[l].MinY, quads[l].MaxY) + yValuesOffset));
                     }
                     break;
                 default:
-                    secondQuad = quads[1];
-                    secondToLastQuad = quads[quads.Count - 2];
+                    newQuads.Add(new Quad(quads[0].PageIndex, false, quads[0].MinX, quads[0].MinY, maxX, MidPoint(quads[0].MaxY, quads[0].MinY) + yValuesOffset));
 
-                    temporaryAnnotationQuads.Add(new Quad(firstQuad.PageIndex, false, firstQuad.X1, firstQuad.MinY + yValuesOffset, maxX, firstQuad.MaxY- yValuesOffset));
-                    temporaryAnnotationQuads.Add(new Quad(secondQuad.PageIndex, false, minX, secondToLastQuad.MinY + yValuesOffset, maxX, secondQuad.MaxY - yValuesOffset));
-                    temporaryAnnotationQuads.Add(new Quad(lastQuad.PageIndex, false, minX, lastQuadMidY - averageLineHeight/2, lastQuad.X2, lastQuad.MaxY - yValuesOffset));
+                    for (int i = 1; i < l; i++)
+                    {
+                        newQuads.Add(new Quad(quads[i].PageIndex, false, minX, MidPoint(quads[i].MaxY, quads[i].MinY) - yValuesOffset, maxX, MidPoint(quads[i].MaxY, quads[i].MinY) + yValuesOffset));
+                    }
 
+                    newQuads.Add(new Quad(quads[l].PageIndex, false, minX, quads[l].MinY, quads[l].MaxX, MidPoint(quads[l].MinY, quads[l].MaxY) + yValuesOffset));
                     break;
             }
-            return temporaryAnnotationQuads;
+            newQuads = newQuads.OrderByDescending(q => MidPoint(q.MaxY, q.MinY)).ToList();
+
+            return newQuads;
         }
 
         public static List<Quad> SimpleQuads(this List<Quad> quads)
         {
-            // return quads;
             List<Quad> newQuads = new List<Quad>();
             List<Quad> tempQuads = new List<Quad>();
 
@@ -701,6 +761,8 @@ namespace QuotationsToolbox
                 tempQuads.Add(quads[quads.Count - 1]);
                 quads = tempQuads;
             }
+
+            int l = quads.Count - 1;
 
             switch (quads.Count)
             {
@@ -723,12 +785,11 @@ namespace QuotationsToolbox
                 default:
                     newQuads.Add(new Quad(quads[0].PageIndex, false, quads[0].MinX, MidPoint(quads[0].MinY, quads[1].MaxY), maxX, quads[0].MaxY));
 
-                    for (int i = 1; i < quads.Count - 1; i++)
+                    for (int i = 1; i < l; i++)
                     {
                         newQuads.Add(new Quad(quads[i].PageIndex, false, minX, MidPoint(quads[i - 1].MaxY, quads[i].MinY), maxX, MidPoint(quads[i].MaxY, quads[i + 1].MinY)));
                     }
-
-                    newQuads.Add(new Quad(quads[quads.Count - 1].PageIndex, false, minX, quads[quads.Count - 1].MinY, quads[quads.Count - 1].MaxX, MidPoint(quads[quads.Count - 2].MaxY, quads[quads.Count - 1].MinY)));
+                    newQuads.Add(new Quad(quads[l].PageIndex, false, minX, quads[l].MinY, quads[l].MaxX, MidPoint(quads[l - 1].MaxY, quads[l].MinY)));
                     break;
             }
             return newQuads;
