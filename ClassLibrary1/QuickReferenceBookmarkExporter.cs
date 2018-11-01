@@ -22,6 +22,8 @@ namespace QuotationsToolbox
 {
     class QuickReferenceBookmarkExporter
     {
+        static List<pdftron.PDF.Bookmark> bookmarks = new List<pdftron.PDF.Bookmark>();
+
         public static void ExportBookmarks(List<Reference> references)
         {
             List<Reference> exportFailed = new List<Reference>();
@@ -64,7 +66,7 @@ namespace QuotationsToolbox
                         ExportQuickReferenceAsBookmark(annotation, document);
                     }
 
-                    DeleteExtraBookmarks(quickReferencesAtThisLocation.Select(q => q.CoreStatement).ToList(), document);
+                    DeleteExtraBookmarks(quickReferencesAtThisLocation, document);
 
                     try
                     {
@@ -96,6 +98,7 @@ namespace QuotationsToolbox
                 }
             }
         }
+
         public static void ExportQuickReferenceAsBookmark(Annotation annotation, Document document)
         {
             KnowledgeItem quickReference = (KnowledgeItem)annotation.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).FirstOrDefault().Source;
@@ -115,7 +118,6 @@ namespace QuotationsToolbox
 
             if (foo.IsValid() && foo.GetAction().GetDest().GetPage().GetIndex() == page)
             {
-                System.Diagnostics.Debug.WriteLine(foo.GetAction().GetDest().GetPage().GetIndex().ToString());
                 foo.SetAction(pdftron.PDF.Action.CreateGoto(destination));
                 return;
             }
@@ -123,25 +125,47 @@ namespace QuotationsToolbox
             document.AddRootBookmark(bookmark);
 
             bookmark.SetAction(pdftron.PDF.Action.CreateGoto(destination));
-
         }
-        public static void DeleteExtraBookmarks(List<string> quickreferences, Document document)
-        {
-            List<pdftron.PDF.Bookmark> bookmarks = new List<pdftron.PDF.Bookmark>();
 
+        public static void DeleteExtraBookmarks(List<KnowledgeItem> quickreferences, Document document)
+        {
             pdftron.PDF.Bookmark bookmark = document.GetFirstBookmark();
+
+            bookmarks = new List<pdftron.PDF.Bookmark>();
 
             while (bookmark.IsValid())
             {
-                bookmarks.Add(bookmark);
+                AddBookmarkAndItsChildren(bookmark);
                 bookmark = bookmark.GetNext();
+                if (!bookmark.IsValid()) break;
             }
 
             foreach (pdftron.PDF.Bookmark b in bookmarks)
             {
-                if (!quickreferences.Contains(b.GetTitle())) b.Delete();
+                if (quickreferences.Where(q => q.CoreStatement == b.GetTitle() && ((Annotation)q.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).FirstOrDefault().Target).Quads.FirstOrDefault().PageIndex == b.GetAction().GetDest().GetPage().GetIndex()).Count() == 0) b.Delete();
             }
 
+        }
+
+        public static void AddBookmarkAndItsChildren(pdftron.PDF.Bookmark bookmark)
+        {
+            if (!bookmark.IsValid()) return;
+
+            bookmarks.Add(bookmark);
+
+            List< pdftron.PDF.Bookmark> children = new List<pdftron.PDF.Bookmark>();
+
+            bookmark = bookmark.GetFirstChild();
+            while (bookmark.IsValid())
+            {
+                children.Add(bookmark);
+                bookmark = bookmark.GetNext();
+            }
+
+            foreach (pdftron.PDF.Bookmark child in children)
+            {
+                AddBookmarkAndItsChildren(child);
+            }
         }
     }
 }
