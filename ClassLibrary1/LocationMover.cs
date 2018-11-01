@@ -31,22 +31,22 @@ namespace QuotationsToolbox
 
             // Static Variables
 
-            Location location = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedElectronicLocations().FirstOrDefault();
+            List<Reference> references = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedReferences();
+
+            List<Location> locations = references.SelectMany(r => r.Locations).Where(l => l.Address.LinkedResourceType == LinkedResourceType.AttachmentFile).ToList();
 
             Project activeProject = Program.ActiveProjectShell.Project;
 
             string citaviAttachmentsFolderPath = activeProject.Addresses.AttachmentsFolderPath;
-
-            Reference reference = location.Reference;
-
-            if (location.LocationType != LocationType.ElectronicAddress) return;
-            if (location.Address.LinkedResourceType != LinkedResourceType.AttachmentFile && string.IsNullOrEmpty(location.Address.Resolve().LocalPath)) return;
 
             // Dynamic Variables
 
             string targetFolder = string.Empty;
 
             var fbd = new FolderBrowserDialog();
+
+            List<Reference> renamingFailed = new List<Reference>();
+            int renameCounter = 0;
 
             // The Magic
 
@@ -57,38 +57,60 @@ namespace QuotationsToolbox
             if (result == DialogResult.Cancel) return;
             targetFolder = fbd.SelectedPath;
 
-            string oldFilePath =  location.Address.Resolve().LocalPath;
-
-            FileInfo fileInfo = new FileInfo(oldFilePath);
-
-            string fileExtension = fileInfo.Extension;
-            if (fileExtension.Equals("pdf", StringComparison.InvariantCultureIgnoreCase))
+            foreach (Location location in locations)
             {
+                string oldFilePath = location.Address.Resolve().LocalPath;
+
+                FileInfo fileInfo = new FileInfo(oldFilePath);
+
+                string fileExtension = fileInfo.Extension;
+                if (fileExtension.Equals("pdf", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return;
+                }
+
+                string fileName = fileInfo.Name;
+
+                string newAbsoluteFilePath = targetFolder + @"\" + fileName;
+
+                if (newAbsoluteFilePath.Equals(oldFilePath)) return;
+
+                if (File.Exists(newAbsoluteFilePath))
+                {
+                    // renamingFailed.Add(reference);
+                    // continue;
+                }
+
+                try
+                {
+                    location.Address.ChangeFilePathAsync(new System.Uri(newAbsoluteFilePath), AttachmentAction.Move);
+                    renameCounter++;
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show("An error has occured while renaming " + location.Address + ":\n" + e.Message, "Citavi Macro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    renamingFailed.Add(location.Reference);
+                    return;
+                }
+            }
+            string message = "{0} locations have been moved.";
+            message = string.Format(message, renameCounter);
+
+            if (renamingFailed.Count == 0)
+            {
+                MessageBox.Show(message, "Citavi Macro", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
-
-            string fileName = fileInfo.Name;
-
-            string newAbsoluteFilePath = targetFolder + @"\" + fileName;
-
-            if (newAbsoluteFilePath.Equals(oldFilePath)) return;
-
-            if (File.Exists(newAbsoluteFilePath))
+            else
             {
-                // renamingFailed.Add(reference);
-                // continue;
+                DialogResult showFailed = MessageBox.Show(message + "\n Would you like to show a selection of references where the move has failed?", "Citavi Macro", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                if (showFailed == DialogResult.Yes)
+                {
+                    var filter = new ReferenceFilter(renamingFailed, "Renaming failed", false);
+                    Program.ActiveProjectShell.PrimaryMainForm.ReferenceEditorFilterSet.Filters.ReplaceBy(new List<ReferenceFilter> { filter });
+                    return;
+                }
             }
-
-            try
-            {
-                location.Address.ChangeFilePathAsync(new System.Uri(newAbsoluteFilePath), AttachmentAction.Move);
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show("An error has occured while renaming " + location.Address + ":\n" + e.Message, "Citavi Macro", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-            MessageBox.Show("“" + location.FullName + "” has been moved to “" + newAbsoluteFilePath + "”.", "Citavi Macro", MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
         }
     }

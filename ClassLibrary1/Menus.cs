@@ -30,6 +30,8 @@ namespace QuotationsToolbox
 
             var referencesMenu = mainForm.GetMainCommandbarManager().GetReferenceEditorCommandbar(MainFormReferenceEditorCommandbarId.Menu).GetCommandbarMenu(MainFormReferenceEditorCommandbarMenuId.References);
 
+            referencesMenu.AddCommandbarButton("MoveAttachment", "Move local attachments of selected references to a different folder");
+
             var annotationsImportCommandbarMenu = referencesMenu.AddCommandbarMenu("AnnotationsImportCommandbarMenu", "Import annotations…", CommandbarItemStyle.Default);
 
             annotationsImportCommandbarMenu.HasSeparator = true;
@@ -86,8 +88,6 @@ namespace QuotationsToolbox
             // Reference Editor Attachment Pop-Up Menu
 
             var referenceEditorUriLocationsContextMenu = CommandbarMenu.Create(mainForm.GetReferenceEditorElectronicLocationsCommandbarManager().ToolbarsManager.Tools["ReferenceEditorUriLocationsContextMenu"] as PopupMenuTool);
-            referenceEditorUriLocationsContextMenu.AddCommandbarButton("MoveAttachment", "Move selected attachment to a different folder");
-            referenceEditorUriLocationsContextMenu.HasSeparator = true;
             
             // Knowledge Item Pop-Up Menu
 
@@ -164,6 +164,12 @@ namespace QuotationsToolbox
                         e.Handled = true;
                         Reference reference = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedReferences().FirstOrDefault();
                         AnnotationsImporter.AnnotationsImport(reference, QuotationType.Summary);
+                    }
+                    break;
+                case "MoveAttachment":
+                    {
+                        e.Handled = true;
+                        LocationMover.MoveAttachment();
                     }
                     break;
                 #endregion
@@ -255,12 +261,7 @@ namespace QuotationsToolbox
                     break;
                 #endregion
                 #region ReferenceEditorUriLocationsPopupMenu
-                case "MoveAttachment":
-                    {
-                        e.Handled = true;
-                        LocationMover.MoveAttachment();
-                    }
-                    break;
+
                 #endregion
                 #region KnowledgeOrganizerKnowledgeItemsContextMenu
                 case "OpenKnowledgeItemAttachment":
