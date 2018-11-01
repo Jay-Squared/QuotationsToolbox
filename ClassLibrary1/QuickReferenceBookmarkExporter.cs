@@ -103,7 +103,13 @@ namespace QuotationsToolbox
             string bookmarkTitle = quickReference.CoreStatement;
 
             pdftron.PDF.Bookmark bookmark = pdftron.PDF.Bookmark.Create(document, bookmarkTitle);
-            Destination destination = Destination.CreateFit(document.GetPage(annotation.Quads.FirstOrDefault().PageIndex));
+
+            Quad firstQuad = annotation.Quads.FirstOrDefault();
+            int page = firstQuad.PageIndex;
+            double left = firstQuad.MinX;
+            double top = firstQuad.MaxY;
+
+            Destination destination = Destination.CreateXYZ(document.GetPage(page), left, top, 0);
 
             pdftron.PDF.Bookmark foo = document.GetFirstBookmark().Find(bookmarkTitle);
 
