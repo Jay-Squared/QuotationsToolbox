@@ -113,8 +113,9 @@ namespace QuotationsToolbox
 
             pdftron.PDF.Bookmark foo = document.GetFirstBookmark().Find(bookmarkTitle);
 
-            if (foo.IsValid())
+            if (foo.IsValid() && foo.GetAction().GetDest().GetPage().GetIndex() == page)
             {
+                System.Diagnostics.Debug.WriteLine(foo.GetAction().GetDest().GetPage().GetIndex().ToString());
                 foo.SetAction(pdftron.PDF.Action.CreateGoto(destination));
                 return;
             }
@@ -134,7 +135,6 @@ namespace QuotationsToolbox
             {
                 bookmarks.Add(bookmark);
                 bookmark = bookmark.GetNext();
-
             }
 
             foreach (pdftron.PDF.Bookmark b in bookmarks)

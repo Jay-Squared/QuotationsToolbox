@@ -302,7 +302,7 @@ namespace QuotationsToolbox
             if ((string.IsNullOrEmpty(highlightContents) && ImportEmptyAnnotations) || quotationType == QuotationType.Comment)
 
             {
-                Annotation temporaryAnnotation = temporaryAnnotations.Where(a => !highlight.EquivalentAnnotationQuads().TemporaryQuads().Except(a.Quads.ToList()).Any()).FirstOrDefault();
+                Annotation temporaryAnnotation = temporaryAnnotations.Where(a => !highlight.AsAnnotationQuads().TemporaryQuads().Except(a.Quads.ToList()).Any()).FirstOrDefault();
                 if (temporaryAnnotation != null)
                 {
                     pdfViewControl.GoToAnnotation(temporaryAnnotation);
@@ -493,13 +493,13 @@ namespace QuotationsToolbox
             List<Annotation> annotationsAtThisLocation = location.Annotations.ToList();
             if (annotationsAtThisLocation == null) return null;
 
-            equivalentAnnotations = annotationsAtThisLocation.Where(a => !highlight.EquivalentAnnotationQuads().Except(a.Quads.ToList()).Any()).ToList();
-            equivalentAnnotations.AddRange(annotationsAtThisLocation.Where(a => !highlight.EquivalentAnnotationQuads().SimpleQuads().Except(a.Quads.ToList()).Any()).ToList());
+            equivalentAnnotations = annotationsAtThisLocation.Where(a => !highlight.AsAnnotationQuads().Except(a.Quads.ToList()).Any()).ToList();
+            equivalentAnnotations.AddRange(annotationsAtThisLocation.Where(a => !highlight.AsAnnotationQuads().SimpleQuads().Except(a.Quads.ToList()).Any()).ToList());
 
             return equivalentAnnotations;
         }
 
-        public static List<Quad> EquivalentAnnotationQuads(this Highlight highlight)
+        public static List<Quad> AsAnnotationQuads(this Highlight highlight)
         {
             int pageIndex = highlight.GetPage().GetIndex();
 
@@ -544,11 +544,11 @@ namespace QuotationsToolbox
 
             if (RedrawAnnotations)
             {
-                quads = highlight.EquivalentAnnotationQuads().SimpleQuads();
+                quads = highlight.AsAnnotationQuads().SimpleQuads();
             }
             else
             {
-                quads = highlight.EquivalentAnnotationQuads();
+                quads = highlight.AsAnnotationQuads();
             }
 
 
@@ -598,7 +598,7 @@ namespace QuotationsToolbox
 
             Annotation temporaryAnnotation = new Annotation(location);
 
-            temporaryAnnotation.Quads = highlight.EquivalentAnnotationQuads().TemporaryQuads();
+            temporaryAnnotation.Quads = highlight.AsAnnotationQuads().TemporaryQuads();
             temporaryAnnotation.OriginalColor = System.Drawing.Color.FromArgb(255, 255, 255, 0);
             temporaryAnnotation.Visible = true;
 
