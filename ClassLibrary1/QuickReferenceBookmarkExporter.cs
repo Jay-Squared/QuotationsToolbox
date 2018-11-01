@@ -60,13 +60,13 @@ namespace QuotationsToolbox
 
                     List<Annotation> quickReferenceAnnotationsAtThisLocation = quickReferencesAtThisLocation.Select(d => (Annotation)d.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).ToList().FirstOrDefault().Target).ToList();
 
-                   foreach (Annotation annotation in quickReferenceAnnotationsAtThisLocation)
+                    DeleteExtraBookmarks(quickReferencesAtThisLocation, document);
+
+                    foreach (Annotation annotation in quickReferenceAnnotationsAtThisLocation)
                     {
 
                         ExportQuickReferenceAsBookmark(annotation, document);
                     }
-
-                    DeleteExtraBookmarks(quickReferencesAtThisLocation, document);
 
                     try
                     {
@@ -142,6 +142,7 @@ namespace QuotationsToolbox
 
             foreach (pdftron.PDF.Bookmark b in bookmarks)
             {
+                // b.Delete();
                 if (quickreferences.Where(q => q.CoreStatement == b.GetTitle() && ((Annotation)q.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).FirstOrDefault().Target).Quads.FirstOrDefault().PageIndex == b.GetAction().GetDest().GetPage().GetIndex()).Count() == 0) b.Delete();
             }
 
