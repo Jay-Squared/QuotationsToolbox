@@ -115,6 +115,7 @@ namespace QuotationsToolbox
 
             if (foo.IsValid())
             {
+                foo.SetAction(pdftron.PDF.Action.CreateGoto(destination));
                 return;
             }
             
