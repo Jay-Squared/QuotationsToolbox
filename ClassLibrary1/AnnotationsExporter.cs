@@ -89,30 +89,30 @@ namespace QuotationsToolbox
                     List<Annotation> summaryAnnotationsAtThisLocation = summaries.Select(d => (Annotation)d.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).ToList().FirstOrDefault().Target).ToList();
 
 
-                    DeleteAllAnnotations(document);
+                    DeleteExistingHighlights(document);
 
                     foreach (Annotation annotation in summaryAnnotationsAtThisLocation)
                     {
                         System.Drawing.Color highlightColor = KnownColors.AnnotationSummary100;
-                        ExportAnnotationToPDF(annotation, highlightColor, document, coveredRects, out coveredRects);
+                        CreateHighlightAnnots(annotation, highlightColor, document, coveredRects, out coveredRects);
                     }
 
                     foreach (Annotation annotation in directQuotationAnnotationsAtThisLocation)
                     {
                         System.Drawing.Color highlightColor = KnownColors.AnnotationDirectQuotation100;
-                        ExportAnnotationToPDF(annotation, highlightColor, document, coveredRects, out coveredRects);
+                        CreateHighlightAnnots(annotation, highlightColor, document, coveredRects, out coveredRects);
                     }
 
                     foreach (Annotation annotation in quickReferenceAnnotationsAtThisLocation)
                     {
                         System.Drawing.Color highlightColor = KnownColors.AnnotationQuickReference100;
-                        ExportAnnotationToPDF(annotation, highlightColor, document, coveredRects, out coveredRects);
+                        CreateHighlightAnnots(annotation, highlightColor, document, coveredRects, out coveredRects);
                     }
 
                     foreach (Annotation annotation in commentAnnotationsAtThisLocation)
                     {
                         System.Drawing.Color highlightColor = KnownColors.AnnotationComment100;
-                        ExportAnnotationToPDF(annotation, highlightColor, document, coveredRects, out coveredRects);
+                        CreateHighlightAnnots(annotation, highlightColor, document, coveredRects, out coveredRects);
                     }
 
                     try
@@ -145,7 +145,38 @@ namespace QuotationsToolbox
                 }
             }
         }
-        static void ExportAnnotationToPDF(Annotation annotation, System.Drawing.Color highlightColor, Document document, List<Rect> coveredRectsBefore, out List<Rect> coveredRectsAfter)
+
+        public static void DeleteExistingHighlights(Document document)
+            {
+                for (int i = 1; i <= document.GetPageCount(); i++)
+                {
+                    pdftron.PDF.Page page = document.GetPage(i);
+                    int annotCount = page.GetNumAnnots();
+
+                    List<Annot> annotsToDelete = new List<Annot>();
+
+                    for (int j = 0; j < page.GetNumAnnots(); j++)
+                    {
+                        Annot annot = page.GetAnnot(j);
+                        if (annot.GetSDFObj() != null &&
+                            annot.GetType() == Annot.Type.e_Highlight)
+                        {
+                            annotsToDelete.Add(annot);
+                        }
+                        else
+                        {
+
+                        }
+                    }
+
+                    foreach (Annot annot in annotsToDelete)
+                    {
+                        page.AnnotRemove(annot);
+                    }
+                }
+            }
+
+        static void CreateHighlightAnnots(Annotation annotation, System.Drawing.Color highlightColor, Document document, List<Rect> coveredRectsBefore, out List<Rect> coveredRectsAfter)
         {
             List<Quad> quads = annotation.Quads.Where(q => q.IsContainer == false).ToList();
             List<int> pages = quads.Select(q => q.PageIndex).ToList().Distinct().ToList();
@@ -188,14 +219,18 @@ namespace QuotationsToolbox
 
                 Annot newAnnot = null;
 
-                if (boxes.Select(b => new { b.x1, b.y1, b.x2, b.y2 }).ToList().Intersect(coveredRectsAfter.Select(b => new { b.x1, b.y1, b.x2, b.y2 }).ToList()).Count() == boxes.Count())
-                {
-                    newAnnot = CreateHighlightAnnot(document, boxes, colorPt, 1);
-                }
-                else
-                {
-                    newAnnot = CreateHighlightAnnot(document, boxes, colorPt, highlightOpacity);
-                }
+                // If we want to make the later annotation invisible, we should uncomment the following if then else, and comment out the line after that
+
+                //if (boxes.Select(b => new { b.x1, b.y1, b.x2, b.y2 }).Intersect(coveredRectsAfter.Select(b => new { b.x1, b.y1, b.x2, b.y2 })).Count() == boxes.Count())
+                //{
+                //    newAnnot = CreateSingleHighlightAnnot(document, boxes, colorPt, 0);
+                //}
+                //else
+                //{
+                //    newAnnot = CreateSingleHighlightAnnot(document, boxes, colorPt, highlightOpacity);
+                //}
+
+                newAnnot = CreateSingleHighlightAnnot(document, boxes, colorPt, highlightOpacity);
 
                 if (!TextAlreadyWrittenToAnAnnotation)
                 {
@@ -214,7 +249,8 @@ namespace QuotationsToolbox
                 coveredRectsAfter.AddRange(boxes);
             }
         }
-        static Annot CreateHighlightAnnot(Document document, List<Rect> boxes, ColorPt colorPt, double highlightOpacity)
+
+        static Annot CreateSingleHighlightAnnot(Document document, List<Rect> boxes, ColorPt colorPt, double highlightOpacity)
         {
             Annot annotation = Annot.Create(document, Annot.Type.e_Highlight, RectangleUnion(boxes));
 
@@ -230,6 +266,7 @@ namespace QuotationsToolbox
 
             return annotation;
         }
+
         static void PushBackBox(Obj quads, Rect box)
         {
             quads.PushBackNumber(box.x1);
@@ -241,6 +278,7 @@ namespace QuotationsToolbox
             quads.PushBackNumber(box.x2);
             quads.PushBackNumber(box.y1);
         }
+
         static Obj CreateHighlightAppearance(List<Rect> boxes, ColorPt highlightColor, double highlightOpacity, Document document)
         {
             var elementBuilder = new ElementBuilder();
@@ -274,6 +312,7 @@ namespace QuotationsToolbox
 
             return highlightAppearance;
         }
+
         static Rect RectangleUnion(List<Rect> boxes)
         {
             double y1 = boxes.Select(box => box.y1).Min();
@@ -281,35 +320,6 @@ namespace QuotationsToolbox
             double x1 = boxes.Select(box => box.x1).Min();
             double x2 = boxes.Select(box => box.x2).Max();
             return new Rect(x1, y1, x2, y2);
-        }
-        public static void DeleteAllAnnotations(Document document)
-        {
-            for (int i = 1; i <= document.GetPageCount(); i++)
-            {
-                pdftron.PDF.Page page = document.GetPage(i);
-                int annotCount = page.GetNumAnnots();
-
-                List<Annot> annotsToDelete = new List<Annot>();
-
-                for (int j = 0; j < page.GetNumAnnots(); j++)
-                {
-                    Annot annot = page.GetAnnot(j);
-                    if (annot.GetSDFObj() != null &&
-                        annot.GetType() == Annot.Type.e_Highlight)
-                    {
-                        annotsToDelete.Add(annot);
-                    }
-                    else
-                    {
-
-                    }
-                }
-
-                foreach (Annot annot in annotsToDelete)
-                {
-                    page.AnnotRemove(annot);
-                }
-            }
-        }
+        }     
     }
 }
