@@ -62,6 +62,7 @@ namespace QuotationsToolbox
                 foreach (LinkedResource linkedResource in linkedResources)
                 {
                     string pathToFile = linkedResource.Resolve().LocalPath;
+                    if (!System.IO.File.Exists(pathToFile)) continue;
 
                     List<Rect> coveredRects = new List<Rect>();
 
