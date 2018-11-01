@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Linq;
 
+using SwissAcademic.Citavi;
+
 using pdftron;
 using pdftron.Common;
 using pdftron.Filters;
@@ -39,9 +41,36 @@ namespace QuotationsToolbox
         /// Required method for Designer support - do not modify
         /// the contents of this method with the code editor.
         /// </summary>
-        private void InitializeComponent(string colorPickerCaption, List<ColorPt> existingColorPts, bool ImportEmptyAnnotations, out List<ColorPt> selectedColorPts)
+        private void InitializeComponent(QuotationType quotationType, List<ColorPt> existingColorPts, out List<ColorPt> selectedColorPts)
         {
             selectedColorPts = new List<ColorPt>();
+
+            ImportEmptyAnnotationsSelected = false;
+            RedrawAnnotationsSelected = true;
+            ImportDirectQuotationLinkedWithCommentSelected = true;
+
+            string colorPickerCaption = string.Empty;
+
+            switch (quotationType)
+            {
+                case QuotationType.Comment:
+                    colorPickerCaption = "Select the colors of all comments.";
+                    break;
+                case QuotationType.DirectQuotation:
+                    colorPickerCaption = "Select the colors of all direct quotations.";
+                    ImportEmptyAnnotationsSelected = true;
+                    break;
+                case QuotationType.QuickReference:
+                    colorPickerCaption = "Select the colors of all quick references.";
+                    ImportEmptyAnnotationsSelected = true;
+                    break;
+                case QuotationType.Summary:
+                    colorPickerCaption = "Select the colors of all summaries.";
+                    break;
+                default:
+                    break;
+            }
+
 
             int formWidth = 300;
             int formHeight = existingColorPts.Count * 50 + 160;
@@ -140,29 +169,43 @@ namespace QuotationsToolbox
                 i++;
             }
 
-            ImportEmptyAnnotationsSelected = ImportEmptyAnnotations;
+            // The Options
+
+            if (quotationType == QuotationType.Comment)
+            {
+
+                CheckBox ImportDirectQuotationLinkedWithCommentCheckBox = new CheckBox();
+                ImportDirectQuotationLinkedWithCommentCheckBox.Checked = ImportDirectQuotationLinkedWithCommentSelected;
+                ImportDirectQuotationLinkedWithCommentCheckBox.Width = formWidth - 30;
+                ImportDirectQuotationLinkedWithCommentCheckBox.Text = "Import direct quotation linked with comment.";
+                ImportDirectQuotationLinkedWithCommentCheckBox.Location = new System.Drawing.Point(padding, formHeight - (40 + 3 * (buttonHeight + padding)));
+
+                this.Controls.Add(ImportDirectQuotationLinkedWithCommentCheckBox);
+
+                ImportDirectQuotationLinkedWithCommentCheckBox.Click += new EventHandler((sender, e) => YesNoCheckboxClick(sender, e, ImportDirectQuotationLinkedWithCommentCheckBox, ImportDirectQuotationLinkedWithCommentSelected, "ImportDirectQuotationLinkedWithComment"));
+            }
+
+            CheckBox redrawAnnotationsCheckBox = new CheckBox();
+            redrawAnnotationsCheckBox.Checked = RedrawAnnotationsSelected;
+            redrawAnnotationsCheckBox.Width = formWidth - 30;
+            redrawAnnotationsCheckBox.Text = "Redraw annotations.";
+            redrawAnnotationsCheckBox.Location = new System.Drawing.Point(padding, formHeight - (40 + 2 * (buttonHeight + padding)));
+
+            this.Controls.Add(redrawAnnotationsCheckBox);
+
+            redrawAnnotationsCheckBox.Click += new EventHandler((sender, e) => YesNoCheckboxClick(sender, e, redrawAnnotationsCheckBox, RedrawAnnotationsSelected, "RedrawAnnotations"));
 
             CheckBox emptyAnnotationsCheckBox = new CheckBox();
-            emptyAnnotationsCheckBox.Checked = ImportEmptyAnnotations;
+            emptyAnnotationsCheckBox.Checked = ImportEmptyAnnotationsSelected;
             emptyAnnotationsCheckBox.Width = formWidth - 30;
             emptyAnnotationsCheckBox.Text = "Import empty annotations.";
             emptyAnnotationsCheckBox.Location = new System.Drawing.Point(padding, formHeight - (40 + buttonHeight + padding));
 
             this.Controls.Add(emptyAnnotationsCheckBox);
 
-            emptyAnnotationsCheckBox.Click += new EventHandler((sender, e) => YesNoCheckboxClick(sender, e, emptyAnnotationsCheckBox, ImportEmptyAnnotations, "ImportEmptyAnnotations"));
+            emptyAnnotationsCheckBox.Click += new EventHandler((sender, e) => YesNoCheckboxClick(sender, e, emptyAnnotationsCheckBox, ImportEmptyAnnotationsSelected, "ImportEmptyAnnotations"));
 
-            RedrawAnnotationsSelected = true;
-
-            CheckBox redrawAnnotationsCheckBox = new CheckBox();
-            redrawAnnotationsCheckBox.Checked = true;
-            redrawAnnotationsCheckBox.Width = formWidth - 30;
-            redrawAnnotationsCheckBox.Text = "Redraw annotations.";
-            redrawAnnotationsCheckBox.Location = new System.Drawing.Point(padding, formHeight - (40 + 2* (buttonHeight + padding)));
-
-            this.Controls.Add(redrawAnnotationsCheckBox);
-
-            redrawAnnotationsCheckBox.Click += new EventHandler((sender, e) => YesNoCheckboxClick(sender, e, redrawAnnotationsCheckBox, redrawAnnotationsCheckBox.Checked, "RedrawAnnotations"));
+            // The Buttons
 
             button1.Click += new EventHandler(cmdOK_Click);
             button2.Click += new EventHandler(cmdCancel_Click);
@@ -214,6 +257,9 @@ namespace QuotationsToolbox
             }
             switch (optionName)
             {
+                case "ImportDirectQuotationLinkedWithComment":
+                    ImportDirectQuotationLinkedWithCommentSelected = Result;
+                    break;
                 case "ImportEmptyAnnotations":
                     ImportEmptyAnnotationsSelected = Result;
                     break;
@@ -252,6 +298,12 @@ namespace QuotationsToolbox
         }
 
         public static bool ImportEmptyAnnotationsSelected
+        {
+            get;
+            private set;
+        }
+
+        public static bool ImportDirectQuotationLinkedWithCommentSelected
         {
             get;
             private set;

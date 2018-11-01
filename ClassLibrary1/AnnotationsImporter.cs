@@ -55,30 +55,11 @@ namespace QuotationsToolbox
 
             bool ImportEmptyAnnotations = false;
             bool RedrawAnnotations = true;
+            bool ImportDirectQuotationLinkedWithComment = true;
 
             // The Magic
 
-            switch (quotationType)
-            {
-                case QuotationType.Comment:
-                    colorPickerCaption = "Select the colors of all comments.";
-                    break;
-                case QuotationType.DirectQuotation:
-                    colorPickerCaption = "Select the colors of all direct quotations.";
-                    ImportEmptyAnnotations = true;
-                    break;
-                case QuotationType.QuickReference:
-                    colorPickerCaption = "Select the colors of all quick references.";
-                    ImportEmptyAnnotations = true;
-                    break;
-                case QuotationType.Summary:
-                    colorPickerCaption = "Select the colors of all summaries.";
-                    break;
-                default:
-                    break;
-            }
-
-            Form commentAnnotationsColorPicker = new AnnotationsImporterColorPicker(colorPickerCaption, document.ExistingColors(), ImportEmptyAnnotations, out selectedColorPts);
+            Form commentAnnotationsColorPicker = new AnnotationsImporterColorPicker(quotationType, document.ExistingColors(), out selectedColorPts);
 
             DialogResult dialogResult = commentAnnotationsColorPicker.ShowDialog();
 
@@ -347,25 +328,53 @@ namespace QuotationsToolbox
                 case QuotationType.Comment:
                     if (!string.IsNullOrEmpty(highlightContents))
                     {
-                        Annotation newDirectQuotationIndicationAnnotation = highlight.CreateKnowledgeItemIndicationAnnotation(RedrawAnnotations);
-                        newDirectQuotation = textContent.CreateNewQuotationFromAnnotationContent(pageRangeString, reference, QuotationType.DirectQuotation);
-                        reference.Quotations.Add(newDirectQuotation);
-                        project.AllKnowledgeItems.Add(newDirectQuotation);
-                        newDirectQuotation.LinkWithKnowledgeItemIndicationAnnotation(newDirectQuotationIndicationAnnotation);
-
                         newQuotation = highlightContents.CreateNewQuotationFromHighlightContents(pageRangeString, reference, quotationType);
                         reference.Quotations.Add(newQuotation);
                         project.AllKnowledgeItems.Add(newQuotation);
                         newQuotation.LinkWithKnowledgeItemIndicationAnnotation(knowledgeItemIndicationAnnotation);
 
-                        EntityLink commentDirectQuotationLink = new EntityLink(project);
-                        commentDirectQuotationLink.Source = newQuotation;
-                        commentDirectQuotationLink.Target = newDirectQuotation;
-                        commentDirectQuotationLink.Indication = EntityLink.CommentOnQuotationIndication;
-                        project.EntityLinks.Add(commentDirectQuotationLink);
+                        if (AnnotationsImporterColorPicker.ImportDirectQuotationLinkedWithCommentSelected)
+                        {
+                            Annotation newDirectQuotationIndicationAnnotation = highlight.CreateKnowledgeItemIndicationAnnotation(RedrawAnnotations);
+                            newDirectQuotation = textContent.CreateNewQuotationFromAnnotationContent(pageRangeString, reference, QuotationType.DirectQuotation);
+                            reference.Quotations.Add(newDirectQuotation);
+                            project.AllKnowledgeItems.Add(newDirectQuotation);
+                            newDirectQuotation.LinkWithKnowledgeItemIndicationAnnotation(newDirectQuotationIndicationAnnotation);
 
-                        newQuotation.CoreStatement = newDirectQuotation.CoreStatement + " (Comment)";
-                        newQuotation.CoreStatementUpdateType = UpdateType.Manual;
+                            EntityLink commentDirectQuotationLink = new EntityLink(project);
+                            commentDirectQuotationLink.Source = newQuotation;
+                            commentDirectQuotationLink.Target = newDirectQuotation;
+                            commentDirectQuotationLink.Indication = EntityLink.CommentOnQuotationIndication;
+                            project.EntityLinks.Add(commentDirectQuotationLink);
+
+                            newQuotation.CoreStatement = newDirectQuotation.CoreStatement + " (Comment)";
+                            newQuotation.CoreStatementUpdateType = UpdateType.Manual;
+                        }
+                    }
+                    else if (string.IsNullOrEmpty(highlightContents) && ImportEmptyAnnotations)
+                    {
+                        newQuotation = textContent.CreateNewQuotationFromAnnotationContent(pageRangeString, reference, quotationType);
+                        reference.Quotations.Add(newQuotation);
+                        project.AllKnowledgeItems.Add(newQuotation);
+                        newQuotation.LinkWithKnowledgeItemIndicationAnnotation(knowledgeItemIndicationAnnotation);
+
+                        if (AnnotationsImporterColorPicker.ImportDirectQuotationLinkedWithCommentSelected)
+                        {
+                            Annotation newDirectQuotationIndicationAnnotation = highlight.CreateKnowledgeItemIndicationAnnotation(RedrawAnnotations);
+                            newDirectQuotation = textContent.CreateNewQuotationFromAnnotationContent(pageRangeString, reference, QuotationType.DirectQuotation);
+                            reference.Quotations.Add(newDirectQuotation);
+                            project.AllKnowledgeItems.Add(newDirectQuotation);
+                            newDirectQuotation.LinkWithKnowledgeItemIndicationAnnotation(newDirectQuotationIndicationAnnotation);
+
+                            EntityLink commentDirectQuotationLink = new EntityLink(project);
+                            commentDirectQuotationLink.Source = newQuotation;
+                            commentDirectQuotationLink.Target = newDirectQuotation;
+                            commentDirectQuotationLink.Indication = EntityLink.CommentOnQuotationIndication;
+                            project.EntityLinks.Add(commentDirectQuotationLink);
+
+                            newQuotation.CoreStatement = newDirectQuotation.CoreStatement + " (Comment)";
+                            newQuotation.CoreStatementUpdateType = UpdateType.Manual;
+                        }
                     }
                     break;
                 case QuotationType.QuickReference:

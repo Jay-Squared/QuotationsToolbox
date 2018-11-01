@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+using SwissAcademic.Citavi;
+
 using pdftron;
 using pdftron.Common;
 using pdftron.Filters;
@@ -20,9 +22,9 @@ namespace QuotationsToolbox
 {
     public partial class AnnotationsImporterColorPicker : Form
     {
-        public AnnotationsImporterColorPicker(string colorPickerCaption, List<ColorPt> existingColorPts, bool ImportEmptyAnnotations, out List<ColorPt> selectedColorPts)
+        public AnnotationsImporterColorPicker(QuotationType quotationType, List<ColorPt> existingColorPts, out List<ColorPt> selectedColorPts)
         {
-            InitializeComponent(colorPickerCaption, existingColorPts, ImportEmptyAnnotations, out selectedColorPts);
+            InitializeComponent(quotationType, existingColorPts, out selectedColorPts);
         }
     }
 }
