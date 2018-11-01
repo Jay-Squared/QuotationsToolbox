@@ -73,12 +73,12 @@ namespace QuotationsToolbox
 
                 string newAbsoluteFilePath = targetFolder + @"\" + fileName;
 
-                if (newAbsoluteFilePath.Equals(oldFilePath)) return;
+                if (newAbsoluteFilePath.Equals(oldFilePath)) continue;
 
                 if (File.Exists(newAbsoluteFilePath))
                 {
-                    // renamingFailed.Add(reference);
-                    // continue;
+                    renamingFailed.Add(location.Reference);
+                    continue;
                 }
 
                 try
