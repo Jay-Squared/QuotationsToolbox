@@ -37,6 +37,7 @@ namespace QuotationsToolbox
             annotationsImportCommandbarMenu.HasSeparator = true;
 
             annotationsImportCommandbarMenu.AddCommandbarButton("ImportDirectQuotations", "Import direct quotations in active document");
+            annotationsImportCommandbarMenu.AddCommandbarButton("ImportIndirectQuotations", "Import indirect quotations in active document");
             annotationsImportCommandbarMenu.AddCommandbarButton("ImportComments", "Import comments in active document");
             annotationsImportCommandbarMenu.AddCommandbarButton("ImportQuickReferences", "Import quick references in active document");
             annotationsImportCommandbarMenu.AddCommandbarButton("ImportSummaries", "Import summaries in active document");
@@ -150,6 +151,13 @@ namespace QuotationsToolbox
                         e.Handled = true;
                         Reference reference = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedReferences().FirstOrDefault();
                         AnnotationsImporter.AnnotationsImport(reference, QuotationType.DirectQuotation);
+                    }
+                    break;
+                case "ImportIndirectQuotations":
+                    {
+                        e.Handled = true;
+                        Reference reference = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedReferences().FirstOrDefault();
+                        AnnotationsImporter.AnnotationsImport(reference, QuotationType.IndirectQuotation);
                     }
                     break;
                 case "ImportQuickReferences":

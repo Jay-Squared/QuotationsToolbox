@@ -60,6 +60,9 @@ namespace QuotationsToolbox
                     colorPickerCaption = "Select the colors of all direct quotations.";
                     ImportEmptyAnnotationsSelected = true;
                     break;
+                case QuotationType.IndirectQuotation:
+                    colorPickerCaption = "Select the colors of all indirect quotations.";
+                    break;
                 case QuotationType.QuickReference:
                     colorPickerCaption = "Select the colors of all quick references.";
                     ImportEmptyAnnotationsSelected = true;
