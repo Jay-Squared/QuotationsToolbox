@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace QuotationsToolbox
 {
-    public static class Extensions
+    public static class PreviewExtensionMethods
     {
         public static IEnumerable<Annotation> GetSelectedAnnotations(this PdfViewControl pdfViewControl)
         {

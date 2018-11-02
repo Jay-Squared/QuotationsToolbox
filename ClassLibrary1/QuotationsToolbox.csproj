@@ -88,7 +88,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AnnotationExtensions.cs" />
+    <Compile Include="PreviewExtensionMethods.cs" />
     <Compile Include="AnnotationsExporter.cs" />
     <Compile Include="AnnotationSimplifier.cs" />
     <Compile Include="AnnotationsImporterColorPicker.cs">
