@@ -43,6 +43,8 @@ namespace QuotationsToolbox
 
                 List<KnowledgeItem> directQuotations = quotations.Where(q => q.QuotationType == QuotationType.DirectQuotation && q.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).Count() > 0).ToList();
 
+                List<KnowledgeItem> indirectQuotations = quotations.Where(q => q.QuotationType == QuotationType.IndirectQuotation && q.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).Count() > 0).ToList();
+
                 List<KnowledgeItem> quickReferences = quotations.Where(q => q.QuotationType == QuotationType.QuickReference && q.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).Count() > 0).ToList();
 
                 List<KnowledgeItem> summaries = quotations.Where(q => q.QuotationType == QuotationType.Summary && q.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).Count() > 0).ToList();
@@ -76,6 +78,8 @@ namespace QuotationsToolbox
 
                     List<KnowledgeItem> directQuotationsAtThisLocation = directQuotations.Where(d => d.EntityLinks != null && d.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication) != null && ((Annotation)d.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).ToList().FirstOrDefault().Target).Location.Address == linkedResource).ToList();
 
+                    List<KnowledgeItem> indirectQuotationsAtThisLocation = indirectQuotations.Where(d => d.EntityLinks != null && d.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication) != null && ((Annotation)d.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).ToList().FirstOrDefault().Target).Location.Address == linkedResource).ToList();
+
                     List<KnowledgeItem> quickReferencesAtThisLocation = quickReferences.Where(d => ((Annotation)d.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).ToList().FirstOrDefault().Target).Location.Address == linkedResource).ToList();
 
                     List<KnowledgeItem> summariesAtThisLocation = summaries.Where(d => ((Annotation)d.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).ToList().FirstOrDefault().Target).Location.Address == linkedResource).ToList();
@@ -83,6 +87,8 @@ namespace QuotationsToolbox
                     List<Annotation> commentAnnotationsAtThisLocation = commentsAtThisLocation.Select(d => (Annotation)d.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).ToList().FirstOrDefault().Target).ToList();
 
                     List<Annotation> directQuotationAnnotationsAtThisLocation = directQuotationsAtThisLocation.Select(d => (Annotation)d.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).ToList().FirstOrDefault().Target).ToList();
+
+                    List<Annotation> indirectQuotationAnnotationsAtThisLocation = indirectQuotationsAtThisLocation.Select(d => (Annotation)d.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).ToList().FirstOrDefault().Target).ToList();
 
                     List<Annotation> quickReferenceAnnotationsAtThisLocation = quickReferencesAtThisLocation.Select(d => (Annotation)d.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).ToList().FirstOrDefault().Target).ToList();
 
@@ -100,6 +106,12 @@ namespace QuotationsToolbox
                     foreach (Annotation annotation in directQuotationAnnotationsAtThisLocation)
                     {
                         System.Drawing.Color highlightColor = KnownColors.AnnotationDirectQuotation100;
+                        CreateHighlightAnnots(annotation, highlightColor, document, coveredRects, out coveredRects);
+                    }
+
+                    foreach (Annotation annotation in indirectQuotationAnnotationsAtThisLocation)
+                    {
+                        System.Drawing.Color highlightColor = KnownColors.AnnotationIndirectQuotation100;
                         CreateHighlightAnnots(annotation, highlightColor, document, coveredRects, out coveredRects);
                     }
 
