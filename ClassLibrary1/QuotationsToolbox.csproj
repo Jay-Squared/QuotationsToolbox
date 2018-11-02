@@ -90,6 +90,7 @@
   <ItemGroup>
     <Compile Include="AnnotationExtensions.cs" />
     <Compile Include="AnnotationsExporter.cs" />
+    <Compile Include="AnnotationSimplifier.cs" />
     <Compile Include="AnnotationsImporterColorPicker.cs">
       <SubType>Form</SubType>
     </Compile>

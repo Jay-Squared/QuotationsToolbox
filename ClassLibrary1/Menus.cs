@@ -52,6 +52,8 @@ namespace QuotationsToolbox
             var commandBarButtonMergeAnnotations = previewCommandbarMenuTools.AddCommandbarButton("MergeAnnotations", "Merge annotations", CommandbarItemStyle.Default);
             commandBarButtonMergeAnnotations.HasSeparator = true;
 
+            var commandBarButtonRedrawAnnotations = previewCommandbarMenuTools.AddCommandbarButton("SimplifyAnnotations", "Redraw annotations", CommandbarItemStyle.Default);
+
             // Quotations Pop-Up Menu
 
             var referenceEditorQuotationsContextMenu = CommandbarMenu.Create(mainForm.GetReferenceEditorQuotationsCommandbarManager().ToolbarsManager.Tools["ReferenceEditorQuotationsContextMenu"] as PopupMenuTool);
@@ -121,6 +123,12 @@ namespace QuotationsToolbox
                     {
                         e.Handled = true;
                         AnnotationsAndQuotationsMerger.MergeAnnotations();
+                    }
+                    break;
+                case "SimplifyAnnotations":
+                    {
+                        e.Handled = true;
+                        AnnotationSimplifier.SimplifyAnnotations();
                     }
                     break;
                 #endregion            
