@@ -143,7 +143,24 @@ namespace QuotationsToolbox
             foreach (pdftron.PDF.Bookmark b in bookmarks)
             {
                 // b.Delete();
-                if (quickreferences.Where(q => q.CoreStatement == b.GetTitle() && ((Annotation)q.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).FirstOrDefault().Target).Quads.FirstOrDefault().PageIndex == b.GetAction().GetDest().GetPage().GetIndex()).Count() == 0) b.Delete();
+                if (quickreferences.Where
+                    (
+                        q => String.Equals(q.CoreStatement, b.GetTitle(), StringComparison.OrdinalIgnoreCase) &&
+                        ((Annotation)q.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).FirstOrDefault().Target).Quads.FirstOrDefault().PageIndex == b.GetAction().GetDest().GetPage().GetIndex()
+                    )
+                    .Count() == 1)
+                {
+                    b.SetTitle((quickreferences.Where
+                    (
+                        q => String.Equals(q.CoreStatement, b.GetTitle(), StringComparison.OrdinalIgnoreCase) &&
+                        ((Annotation)q.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).FirstOrDefault().Target).Quads.FirstOrDefault().PageIndex == b.GetAction().GetDest().GetPage().GetIndex()
+                    )
+                    .FirstOrDefault().CoreStatement));
+                }
+                else if (quickreferences.Where(q => q.CoreStatement == b.GetTitle() && ((Annotation)q.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).FirstOrDefault().Target).Quads.FirstOrDefault().PageIndex == b.GetAction().GetDest().GetPage().GetIndex()).Count() == 0)
+                {
+                    b.Delete();
+                }
             }
 
         }

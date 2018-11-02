@@ -91,9 +91,9 @@ namespace QuotationsToolbox
 
                     DeleteExistingHighlights(document);
 
-                    foreach (Annotation annotation in summaryAnnotationsAtThisLocation)
+                    foreach (Annotation annotation in commentAnnotationsAtThisLocation)
                     {
-                        System.Drawing.Color highlightColor = KnownColors.AnnotationSummary100;
+                        System.Drawing.Color highlightColor = KnownColors.AnnotationComment100;
                         CreateHighlightAnnots(annotation, highlightColor, document, coveredRects, out coveredRects);
                     }
 
@@ -109,9 +109,9 @@ namespace QuotationsToolbox
                         CreateHighlightAnnots(annotation, highlightColor, document, coveredRects, out coveredRects);
                     }
 
-                    foreach (Annotation annotation in commentAnnotationsAtThisLocation)
+                    foreach (Annotation annotation in summaryAnnotationsAtThisLocation)
                     {
-                        System.Drawing.Color highlightColor = KnownColors.AnnotationComment100;
+                        System.Drawing.Color highlightColor = KnownColors.AnnotationSummary100;
                         CreateHighlightAnnots(annotation, highlightColor, document, coveredRects, out coveredRects);
                     }
 
@@ -221,16 +221,16 @@ namespace QuotationsToolbox
 
                 // If we want to make the later annotation invisible, we should uncomment the following if then else, and comment out the line after that
 
-                //if (boxes.Select(b => new { b.x1, b.y1, b.x2, b.y2 }).Intersect(coveredRectsAfter.Select(b => new { b.x1, b.y1, b.x2, b.y2 })).Count() == boxes.Count())
-                //{
-                //    newAnnot = CreateSingleHighlightAnnot(document, boxes, colorPt, 0);
-                //}
-                //else
-                //{
-                //    newAnnot = CreateSingleHighlightAnnot(document, boxes, colorPt, highlightOpacity);
-                //}
+                if (boxes.Select(b => new { b.x1, b.y1, b.x2, b.y2 }).Intersect(coveredRectsAfter.Select(b => new { b.x1, b.y1, b.x2, b.y2 })).Count() == boxes.Count())
+                {
+                    newAnnot = CreateSingleHighlightAnnot(document, boxes, colorPt, 0);
+                }
+                else
+                {
+                    newAnnot = CreateSingleHighlightAnnot(document, boxes, colorPt, highlightOpacity);
+                }
 
-                newAnnot = CreateSingleHighlightAnnot(document, boxes, colorPt, highlightOpacity);
+                // newAnnot = CreateSingleHighlightAnnot(document, boxes, colorPt, highlightOpacity);
 
                 if (!TextAlreadyWrittenToAnAnnotation)
                 {
