@@ -26,7 +26,8 @@ namespace QuotationsToolbox
 
             if (propertyInfo == null) return;
 
-            PdfViewControl pdfViewControl = propertyInfo.GetValue(Program.ActiveProjectShell.PrimaryMainForm.PreviewControl) as PdfViewControl;
+            PdfViewControl pdfViewControl = previewControl.GetPdfViewControl();
+            if (pdfViewControl == null) return;
 
             Annotation lastAnnotation = null;
 

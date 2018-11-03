@@ -26,13 +26,8 @@ namespace QuotationsToolbox
             PreviewControl previewControl = Program.ActiveProjectShell.PrimaryMainForm.PreviewControl;
             if (previewControl == null) return;
 
-            var type = previewControl.GetType();
-            var propertyInfos = type.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-            var propertyInfo = propertyInfos.FirstOrDefault(prop => prop.Name.Equals("PdfViewControl", StringComparison.OrdinalIgnoreCase));
-
-            if (propertyInfo == null) return;
-
-            PdfViewControl pdfViewControl = propertyInfo.GetValue(Program.ActiveProjectShell.PrimaryMainForm.PreviewControl) as PdfViewControl;
+            PdfViewControl pdfViewControl = previewControl.GetPdfViewControl();
+            if (pdfViewControl == null) return;
 
             Document document = previewControl.GetDocument();
             if (document == null) return;
@@ -43,10 +38,14 @@ namespace QuotationsToolbox
             Location location = document.GetPDFLocationOfDocument();
             if (location == null) return;
 
+            System.Diagnostics.Debug.WriteLine("4");
+
             Reference reference = location.Reference;
             if (reference == null) return;
 
-            List<Annotation> annotations = previewControl.GetPdfViewControl().GetSelectedAnnotations().ToList();
+            System.Diagnostics.Debug.WriteLine("5");
+
+            List<Annotation> annotations = pdfViewControl.GetSelectedAnnotations().ToList();
 
             List<KnowledgeItem> quotations = annotations
                 .Where

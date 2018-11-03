@@ -32,8 +32,14 @@ namespace QuotationsToolbox
             Document document = previewControl.GetDocument();
             if (document == null) return;
 
-            Location location = reference.Locations.Where(l => l.LocationType == LocationType.ElectronicAddress
-    && l.Address.Resolve().LocalPath.EndsWith(".pdf") && l.Address.Resolve().LocalPath == document.GetFileName()).FirstOrDefault();
+            Location location = reference.Locations.Where
+                (
+                    l => 
+                    l.LocationType == LocationType.ElectronicAddress
+                    && l.Address.Resolve().LocalPath.EndsWith(".pdf")
+                    && l.Address.Resolve().LocalPath == document.GetFileName()
+                )
+            .FirstOrDefault();
             if (location == null) return;
 
             Control quotationSmartRepeater = Program.ActiveProjectShell.PrimaryMainForm.Controls.Find("quotationSmartRepeater", true).FirstOrDefault();
@@ -45,7 +51,8 @@ namespace QuotationsToolbox
 
             if (propertyInfo == null) return;
 
-            PdfViewControl pdfViewControl = propertyInfo.GetValue(Program.ActiveProjectShell.PrimaryMainForm.PreviewControl) as PdfViewControl;
+            PdfViewControl pdfViewControl = previewControl.GetPdfViewControl();
+            if (pdfViewControl == null) return;
 
             List<PageRange> pageRanges = new List<PageRange>();
             List<Quad> quads = new List<Quad>();

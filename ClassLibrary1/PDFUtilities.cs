@@ -31,6 +31,8 @@ namespace QuotationsToolbox
 
             PdfViewControl control = propertyInfo.GetValue(previewControl) as PdfViewControl;
 
+            System.Diagnostics.Debug.WriteLine(control.Document);
+
             return control.Document;
         }
 

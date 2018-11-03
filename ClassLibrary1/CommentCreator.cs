@@ -22,13 +22,8 @@ namespace QuotationsToolbox
 
             PreviewControl previewControl = Program.ActiveProjectShell.PrimaryMainForm.PreviewControl;
 
-            var type = previewControl.GetType();
-            var propertyInfos = type.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-            var propertyInfo = propertyInfos.FirstOrDefault(prop => prop.Name.Equals("PdfViewControl", StringComparison.OrdinalIgnoreCase));
-
-            if (propertyInfo == null) return;
-
-            PdfViewControl pdfViewControl = propertyInfo.GetValue(Program.ActiveProjectShell.PrimaryMainForm.PreviewControl) as PdfViewControl;
+            PdfViewControl pdfViewControl = previewControl.GetPdfViewControl();
+            if (pdfViewControl == null) return;
 
             Annotation lastAnnotation = null;
             KnowledgeItem lastComment = null;

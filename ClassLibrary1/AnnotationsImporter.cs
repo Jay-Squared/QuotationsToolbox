@@ -286,8 +286,9 @@ namespace QuotationsToolbox
 
             if (propertyInfo == null) return false;
 
-            PdfViewControl pdfViewControl = propertyInfo.GetValue(Program.ActiveProjectShell.PrimaryMainForm.PreviewControl) as PdfViewControl;
-            
+            PdfViewControl pdfViewControl = previewControl.GetPdfViewControl();
+            if (pdfViewControl == null) return false;
+
             // Dynamic variables
 
             KnowledgeItem newQuotation = null;
