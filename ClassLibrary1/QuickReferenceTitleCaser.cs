@@ -43,9 +43,9 @@ namespace QuotationsToolbox
             // Anything but IVX not preceded by the beginning of the line
             text = Regex.Replace(text, @"(?<!^)([^IVX])", m => m.ToString().ToLower());
             // IVX not preceded by Whitespace or Punctuation
-            text = Regex.Replace(text, @"(?<![IVX\s\p{P}])[IVX]", m => m.ToString().ToLower());
+            text = Regex.Replace(text, @"(?<!\b|[IVX])[IVX]", m => m.ToString().ToLower());
             // IVX not followed by IVX or white space or punctuation
-            text = Regex.Replace(text, @"[IVX](?![IVX\s\p{P}])", m => m.ToString().ToLower());
+            text = Regex.Replace(text, @"[IVX](?!\b|[IVX])", m => m.ToString().ToLower());
 
 
 

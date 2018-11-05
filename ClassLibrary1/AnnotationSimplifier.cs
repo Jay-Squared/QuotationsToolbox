@@ -22,16 +22,19 @@ namespace QuotationsToolbox
     {
         public static void SimplifyAnnotations()
         {
-            PreviewControl previewControl = Program.ActiveProjectShell.PrimaryMainForm.PreviewControl;
+            PreviewControl previewControl = PreviewMethods.GetPreviewControl();
             if (previewControl == null) return;
 
-            Document document = previewControl.GetDocument();
+            PdfViewControl pdfViewControl = previewControl.GetPdfViewControl();
+            if (pdfViewControl == null) return;
+
+            Document document = pdfViewControl.Document;
             if (document == null) return;
 
             Project project = Program.ActiveProjectShell.Project;
             if (project == null) return;
 
-            Location location = document.GetPDFLocationOfDocument();
+            Location location = previewControl.ActiveLocation;
             if (location == null) return;
 
             Reference reference = location.Reference;

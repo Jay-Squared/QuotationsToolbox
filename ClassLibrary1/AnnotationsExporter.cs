@@ -27,7 +27,7 @@ namespace QuotationsToolbox
             List<Reference> exportFailed = new List<Reference>();
             int exportCounter = 0;
 
-            PreviewControl previewControl = Program.ActiveProjectShell.PrimaryMainForm.PreviewControl;
+            PreviewControl previewControl = PreviewMethods.GetPreviewControl();
             if (previewControl != null)
             {
                 previewControl.ShowNoPreview();

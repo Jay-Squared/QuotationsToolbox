@@ -18,13 +18,8 @@ namespace QuotationsToolbox
     {
         public static void CreateCommentAnnotation(List<KnowledgeItem> quotations)
         {
-            PreviewControl previewControl = Program.ActiveProjectShell.PrimaryMainForm.PreviewControl;
-
-            var type = previewControl.GetType();
-            var propertyInfos = type.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-            var propertyInfo = propertyInfos.FirstOrDefault(prop => prop.Name.Equals("PdfViewControl", StringComparison.OrdinalIgnoreCase));
-
-            if (propertyInfo == null) return;
+            PreviewControl previewControl = PreviewMethods.GetPreviewControl();
+            if (previewControl == null) return;
 
             PdfViewControl pdfViewControl = previewControl.GetPdfViewControl();
             if (pdfViewControl == null) return;

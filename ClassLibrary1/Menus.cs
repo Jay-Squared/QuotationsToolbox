@@ -6,8 +6,12 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using SwissAcademic.Citavi;
-using SwissAcademic.Controls;
 using SwissAcademic.Citavi.Shell;
+using SwissAcademic.Citavi.Shell.Controls.Preview;
+using SwissAcademic.Citavi.Controls.Wpf;
+using SwissAcademic.Citavi.Shell.Controls.SmartRepeaters;
+using SwissAcademic.Controls;
+using SwissAcademic.Pdf;
 
 using Infragistics.Win.UltraWinToolbars;
 
@@ -22,17 +26,28 @@ namespace QuotationsToolbox
             get { return AddOnHostingForm.MainForm; }
         }
 
-        protected override void OnHostingFormLoaded(System.Windows.Forms.Form hostingForm)
+        protected override void OnHostingFormLoaded(Form hostingForm)
         {
             MainForm mainForm = (MainForm)hostingForm;
+
+            mainForm.ActiveWorkspaceChanged += PrimaryMainForm_ActiveWorkspaceChanged;
 
             // Reference Editor Reference Menu
 
             var referencesMenu = mainForm.GetMainCommandbarManager().GetReferenceEditorCommandbar(MainFormReferenceEditorCommandbarId.Menu).GetCommandbarMenu(MainFormReferenceEditorCommandbarMenuId.References);
 
-            referencesMenu.AddCommandbarButton("MoveAttachment", "Move local attachments of selected references to a different folder");
+            var commandbarButtonMoveAttachment = referencesMenu.AddCommandbarButton("MoveAttachment", "Move local attachments of selected references to a different folder");
+            commandbarButtonMoveAttachment.HasSeparator = true;
 
-            var annotationsImportCommandbarMenu = referencesMenu.AddCommandbarMenu("AnnotationsImportCommandbarMenu", "Import annotations…", CommandbarItemStyle.Default);
+            var commandbarButtonExportAnnotations = referencesMenu.AddCommandbarButton("ExportAnnotations", "Export quotations in selected references as PDF highlights");
+            commandbarButtonExportAnnotations.HasSeparator = true;
+            var commandbarButtonExportBookmarks = referencesMenu.AddCommandbarButton("ExportBookmarks", "Export quick references in selected references as PDF bookmarks");
+
+            // Preview Tool Menu
+
+            var previewCommandbarMenuTools = (mainForm.GetPreviewCommandbar(MainFormPreviewCommandbarId.Toolbar).GetCommandbarMenu(MainFormPreviewCommandbarMenuId.Tools));
+
+            var annotationsImportCommandbarMenu = previewCommandbarMenuTools.AddCommandbarMenu("AnnotationsImportCommandbarMenu", "Import annotations…", CommandbarItemStyle.Default);
 
             annotationsImportCommandbarMenu.HasSeparator = true;
 
@@ -41,13 +56,6 @@ namespace QuotationsToolbox
             annotationsImportCommandbarMenu.AddCommandbarButton("ImportComments", "Import comments in active document");
             annotationsImportCommandbarMenu.AddCommandbarButton("ImportQuickReferences", "Import quick references in active document");
             annotationsImportCommandbarMenu.AddCommandbarButton("ImportSummaries", "Import summaries in active document");
-
-            var commandbarButtonExportAnnotations = referencesMenu.AddCommandbarButton("ExportAnnotations", "Export quotations in selected references as PDF highlights");
-            var commandbarButtonExportBookmarks = referencesMenu.AddCommandbarButton("ExportBookmarks", "Export quick references in selected references as PDF bookmarks");
-
-            // Preview Tool Menu
-
-            var previewCommandbarMenuTools = (mainForm.GetPreviewCommandbar(MainFormPreviewCommandbarId.Toolbar).GetCommandbarMenu(MainFormPreviewCommandbarMenuId.Tools));
 
             var commandBarButtonMergeAnnotations = previewCommandbarMenuTools.AddCommandbarButton("MergeAnnotations", "Merge annotations", CommandbarItemStyle.Default);
             commandBarButtonMergeAnnotations.HasSeparator = true;
@@ -119,6 +127,42 @@ namespace QuotationsToolbox
             switch (e.Key)
             {
                 #region Annotation-based menus
+                case "ImportComments":
+                    {
+                        e.Handled = true;
+                        Reference reference = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedReferences().FirstOrDefault();
+                        AnnotationsImporter.AnnotationsImport(QuotationType.Comment);
+                    }
+                    break;
+                case "ImportDirectQuotations":
+                    {
+                        e.Handled = true;
+                        Reference reference = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedReferences().FirstOrDefault();
+                        AnnotationsImporter.AnnotationsImport(QuotationType.DirectQuotation);
+                    }
+                    break;
+                case "ImportIndirectQuotations":
+                    {
+                        e.Handled = true;
+                        Reference reference = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedReferences().FirstOrDefault();
+                        AnnotationsImporter.AnnotationsImport(QuotationType.IndirectQuotation);
+                    }
+                    break;
+                case "ImportQuickReferences":
+                    {
+                        e.Handled = true;
+                        Reference reference = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedReferences().FirstOrDefault();
+                        AnnotationsImporter.AnnotationsImport(QuotationType.QuickReference);
+                    }
+                    break;
+                case "ImportSummaries":
+                    {
+                        e.Handled = true;
+                        Reference reference = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedReferences().FirstOrDefault();
+                        AnnotationsImporter.AnnotationsImport(QuotationType.Summary);
+                    }
+                    break;
+
                 case "MergeAnnotations":
                     {
                         e.Handled = true;
@@ -145,41 +189,6 @@ namespace QuotationsToolbox
                         e.Handled = true;
                         List<Reference> references = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedReferences().ToList();
                         QuickReferenceBookmarkExporter.ExportBookmarks(references);
-                    }
-                    break;
-                case "ImportComments":
-                    {
-                        e.Handled = true;
-                        Reference reference = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedReferences().FirstOrDefault();
-                        AnnotationsImporter.AnnotationsImport(reference, QuotationType.Comment);
-                    }
-                    break;
-                case "ImportDirectQuotations":
-                    {
-                        e.Handled = true;
-                        Reference reference = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedReferences().FirstOrDefault();
-                        AnnotationsImporter.AnnotationsImport(reference, QuotationType.DirectQuotation);
-                    }
-                    break;
-                case "ImportIndirectQuotations":
-                    {
-                        e.Handled = true;
-                        Reference reference = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedReferences().FirstOrDefault();
-                        AnnotationsImporter.AnnotationsImport(reference, QuotationType.IndirectQuotation);
-                    }
-                    break;
-                case "ImportQuickReferences":
-                    {
-                        e.Handled = true;
-                        Reference reference = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedReferences().FirstOrDefault();
-                        AnnotationsImporter.AnnotationsImport(reference, QuotationType.QuickReference);
-                    }
-                    break;
-                case "ImportSummaries":
-                    {
-                        e.Handled = true;
-                        Reference reference = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedReferences().FirstOrDefault();
-                        AnnotationsImporter.AnnotationsImport(reference, QuotationType.Summary);
                     }
                     break;
                 case "MoveAttachment":
@@ -381,7 +390,7 @@ namespace QuotationsToolbox
                         KnowledgeItemInSelectionSorter.SortSelectedKnowledgeItems(mainForm);
                     }
                     break;
-                #endregion
+
                 case "SortKnowledgeItemsInCategory":
                     {
                         e.Handled = true;
@@ -396,8 +405,75 @@ namespace QuotationsToolbox
                         KnowledgeItemInCategorySorter.SortKnowledgeItemsInCategorySorter(mainForm);
                     }
                     break;
+                    #endregion
             }
             base.OnBeforePerformingCommand(e);
+        }
+
+        void PrimaryMainForm_ActiveWorkspaceChanged(object o, EventArgs a)
+        {
+            if (Program.ActiveProjectShell.PrimaryMainForm.ActiveWorkspace == MainFormWorkspace.KnowledgeOrganizer)
+            {
+                SmartRepeater<KnowledgeItem> KnowledgeItemSmartRepeater = (SmartRepeater<KnowledgeItem>)Program.ActiveProjectShell.PrimaryMainForm.Controls.Find("SmartRepeater", true).FirstOrDefault();
+
+                QuotationSmartRepeater quotationSmartRepeaterAsQuotationSmartRepeater = Program.ActiveProjectShell.PrimaryMainForm.Controls.Find("knowledgeItemPreviewSmartRepeater", true).FirstOrDefault() as QuotationSmartRepeater;
+
+                KnowledgeItemSmartRepeater.ActiveListItemChanged += KnowledgeItemPreviewSmartRepeater_ActiveListItemChanged;
+            }
+            else if (Program.ActiveProjectShell.PrimaryMainForm.ActiveWorkspace == MainFormWorkspace.ReferenceEditor)
+            {
+                QuotationSmartRepeater quotationSmartRepeaterAsQuotationSmartRepeater = Program.ActiveProjectShell.PrimaryMainForm.Controls.Find("quotationSmartRepeater", true).FirstOrDefault() as QuotationSmartRepeater;
+
+                quotationSmartRepeaterAsQuotationSmartRepeater.ActiveListItemChanged += QuotationSmartRepeater_ActiveListItemChanged;
+            }
+        }
+
+        void QuotationSmartRepeater_ActiveListItemChanged(object o, EventArgs a)
+        {
+            if (Program.ActiveProjectShell.PrimaryMainForm.GetSelectedQuotations().Count == 0) return;
+
+            KnowledgeItem activeQuotation = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedQuotations().FirstOrDefault();
+            if (activeQuotation.EntityLinks == null) return;
+            if (activeQuotation.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).Count() == 0) return;
+
+            Annotation annotation = activeQuotation.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).FirstOrDefault().Target as Annotation;
+
+            PreviewControl previewControl = PreviewMethods.GetPreviewControl();
+            if (previewControl == null) return;
+
+            SwissAcademic.Citavi.Controls.Wpf.PdfViewControl pdfViewControl = previewControl.GetPdfViewControl();
+            if (pdfViewControl == null) return;
+
+            pdfViewControl.GoToAnnotation(annotation);
+
+        }
+
+        void KnowledgeItemPreviewSmartRepeater_ActiveListItemChanged(object o, EventArgs a)
+        {
+            if (Program.ActiveProjectShell.PrimaryMainForm.GetSelectedKnowledgeItems().Count == 0) return;
+
+            KnowledgeItem activeQuotation = Program.ActiveProjectShell.PrimaryMainForm.GetSelectedKnowledgeItems().FirstOrDefault();
+            if (activeQuotation.EntityLinks == null) return;
+            if (activeQuotation.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).Count() == 0) return;
+
+            Annotation annotation = activeQuotation.EntityLinks.Where(e => e.Indication == EntityLink.PdfKnowledgeItemIndication).FirstOrDefault().Target as Annotation;
+            
+            PreviewControl previewControl = PreviewMethods.GetPreviewControl();
+            if (previewControl == null) return;
+
+            PdfViewControl pdfViewControl = previewControl.GetPdfViewControl();
+            if (pdfViewControl == null) return;
+
+            Document document = pdfViewControl.Document;
+            if (document == null) return;
+
+            if (previewControl.ActiveLocation != annotation.Location)
+            {
+                Program.ActiveProjectShell.ShowPreviewFullScreenForm(annotation.Location, previewControl, null);
+            }
+            pdfViewControl.GoToAnnotation(annotation);
+
+            Program.ActiveProjectShell.PrimaryMainForm.Activate();
         }
     }
 }

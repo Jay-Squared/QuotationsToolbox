@@ -23,27 +23,23 @@ namespace QuotationsToolbox
     {
         public static void MergeAnnotations()
         {
-            PreviewControl previewControl = Program.ActiveProjectShell.PrimaryMainForm.PreviewControl;
+            PreviewControl previewControl = PreviewMethods.GetPreviewControl();
             if (previewControl == null) return;
 
             PdfViewControl pdfViewControl = previewControl.GetPdfViewControl();
             if (pdfViewControl == null) return;
 
-            Document document = previewControl.GetDocument();
+            Document document = pdfViewControl.Document;
             if (document == null) return;
 
             Project project = Program.ActiveProjectShell.Project;
             if (project == null) return;
 
-            Location location = document.GetPDFLocationOfDocument();
+            Location location = previewControl.ActiveLocation;
             if (location == null) return;
-
-            System.Diagnostics.Debug.WriteLine("4");
 
             Reference reference = location.Reference;
             if (reference == null) return;
-
-            System.Diagnostics.Debug.WriteLine("5");
 
             List<Annotation> annotations = pdfViewControl.GetSelectedAnnotations().ToList();
 
@@ -66,15 +62,13 @@ namespace QuotationsToolbox
 
             if (quotations.Count() > 0)
             {
-
-
                 if (quotationTypes.Count > 1)
                 {
                     MessageBox.Show("Can't merge quotations, more than one type of quotation is selected.");
                     return;
                 }
             }
-            
+
             // Dynamic Variables
 
             // The Magic
@@ -254,11 +248,18 @@ namespace QuotationsToolbox
         public static KnowledgeItem CombineQuotations(List<KnowledgeItem> quotations)
         {
             if (quotations.Count() == 1) return quotations.FirstOrDefault();
+            if (quotations.Count == 0) return null;
 
             // Static Variables
 
-            PreviewControl previewControl = Program.ActiveProjectShell.PrimaryMainForm.PreviewControl;
+            PreviewControl previewControl = PreviewMethods.GetPreviewControl();
             if (previewControl == null) return null;
+
+            PdfViewControl pdfViewControl = previewControl.GetPdfViewControl();
+            if (pdfViewControl == null) return null;
+
+            Document document = pdfViewControl.Document;
+            if (document == null) return null;
 
             Reference reference = quotations.FirstOrDefault().Reference;
             if (reference == null) return null;
@@ -269,8 +270,6 @@ namespace QuotationsToolbox
             List<Location> locations = quotations.GetPDFLocations().Distinct().ToList();
             if (locations.Count != 1) return null;
             Location location = locations.FirstOrDefault();
-
-            Document document = previewControl.GetDocument();
 
             List<QuotationType> quotationTypes = quotations.Select(q => q.QuotationType).Distinct().ToList();
             var itemToRemove = quotationTypes.SingleOrDefault(q => q == QuotationType.Highlight);

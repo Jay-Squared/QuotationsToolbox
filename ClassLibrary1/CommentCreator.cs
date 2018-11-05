@@ -21,6 +21,7 @@ namespace QuotationsToolbox
             SwissAcademic.Citavi.Shell.Controls.SmartRepeaters.QuotationSmartRepeater quotationSmartRepeaterAsQuotationSmartRepeater = quotationSmartRepeater as SwissAcademic.Citavi.Shell.Controls.SmartRepeaters.QuotationSmartRepeater;
 
             PreviewControl previewControl = Program.ActiveProjectShell.PrimaryMainForm.PreviewControl;
+            if (previewControl == null) return;
 
             PdfViewControl pdfViewControl = previewControl.GetPdfViewControl();
             if (pdfViewControl == null) return;

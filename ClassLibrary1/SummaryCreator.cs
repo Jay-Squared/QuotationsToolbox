@@ -29,7 +29,10 @@ namespace QuotationsToolbox
             PreviewControl previewControl = Program.ActiveProjectShell.PrimaryMainForm.PreviewControl;
             if (previewControl == null) return;
 
-            Document document = previewControl.GetDocument();
+            PdfViewControl pdfViewControl = previewControl.GetPdfViewControl();
+            if (pdfViewControl == null) return;
+
+            Document document = pdfViewControl.Document;
             if (document == null) return;
 
             Location location = reference.Locations.Where
@@ -44,15 +47,6 @@ namespace QuotationsToolbox
 
             Control quotationSmartRepeater = Program.ActiveProjectShell.PrimaryMainForm.Controls.Find("quotationSmartRepeater", true).FirstOrDefault();
             SwissAcademic.Citavi.Shell.Controls.SmartRepeaters.QuotationSmartRepeater quotationSmartRepeaterAsQuotationSmartRepeater = quotationSmartRepeater as SwissAcademic.Citavi.Shell.Controls.SmartRepeaters.QuotationSmartRepeater;
-
-            var type = previewControl.GetType();
-            var propertyInfos = type.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-            var propertyInfo = propertyInfos.FirstOrDefault(prop => prop.Name.Equals("PdfViewControl", StringComparison.OrdinalIgnoreCase));
-
-            if (propertyInfo == null) return;
-
-            PdfViewControl pdfViewControl = previewControl.GetPdfViewControl();
-            if (pdfViewControl == null) return;
 
             List<PageRange> pageRanges = new List<PageRange>();
             List<Quad> quads = new List<Quad>();

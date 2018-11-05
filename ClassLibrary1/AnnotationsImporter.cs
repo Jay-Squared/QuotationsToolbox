@@ -26,18 +26,31 @@ namespace QuotationsToolbox
 {
     static class AnnotationsImporter
     {
-        public static void AnnotationsImport(Reference reference, QuotationType quotationType)
+        public static void AnnotationsImport(QuotationType quotationType)
         {
             // Static Variables
 
-            PreviewControl previewControl = Program.ActiveProjectShell.PrimaryMainForm.PreviewControl;
+            PreviewControl previewControl = PreviewMethods.GetPreviewControl();
             if (previewControl == null) return;
 
-            Document document = previewControl.GetDocument();
+            PdfViewControl pdfViewControl = previewControl.GetPdfViewControl();
+            if (pdfViewControl == null) return;
+
+            Document document = pdfViewControl.Document;
             if (document == null) return;
 
-            Location location = document.GetPDFLocationOfDocument();
+            Location location = previewControl.ActiveLocation;
             if (location == null) return;
+
+            List<Reference> references = Program.ActiveProjectShell.Project.References.Where(r => r.Locations.Contains(location)).ToList();
+            if (references == null) return;
+            if (references.Count != 1)
+            {
+                MessageBox.Show("The document is not linked with exactly one reference. Import aborted.");
+            }
+
+            Reference reference = references.FirstOrDefault();
+            if (references == null) return;
 
             LinkedResource linkedResource = location.Address;
 
@@ -55,7 +68,6 @@ namespace QuotationsToolbox
 
             bool ImportEmptyAnnotations = false;
             bool RedrawAnnotations = true;
-            bool ImportDirectQuotationLinkedWithComment = true;
 
             // The Magic
 
@@ -116,6 +128,25 @@ namespace QuotationsToolbox
                 document = new Document(pathToFile);
             }
 
+            int x = 0;
+            foreach (Annotation a in location.Annotations)
+            {
+                System.Diagnostics.Debug.WriteLine("Annotation " + x.ToString());
+                int y = 0;
+                foreach (Quad q in a.Quads)
+                {
+                    System.Diagnostics.Debug.WriteLine("Quad " + y.ToString());
+                    System.Diagnostics.Debug.WriteLine("IsContainer: " + q.IsContainer.ToString());
+                    System.Diagnostics.Debug.WriteLine("MinX: " + q.MinX.ToString());
+                    System.Diagnostics.Debug.WriteLine("MinY: " + q.MinY.ToString());
+                    System.Diagnostics.Debug.WriteLine("MaxX: " + q.MaxX.ToString());
+                    System.Diagnostics.Debug.WriteLine("MaxY: " + q.MaxY.ToString());
+                    y = y + 1;
+                }
+                x = x + 1;
+            }
+
+            int v = 0;
             for (int pageIndex = 1; pageIndex <= document.GetPageCount(); pageIndex++)
             {
                 pdftron.PDF.Page page = document.GetPage(pageIndex);
@@ -142,6 +173,20 @@ namespace QuotationsToolbox
                             {
                                 continue;
                             }
+
+                            System.Diagnostics.Debug.WriteLine("Highlight " + v.ToString());
+                            int w = 0;
+                            foreach (Quad q in highlight.AsAnnotationQuads())
+                            {
+                                System.Diagnostics.Debug.WriteLine("Quad " + w.ToString());
+                                System.Diagnostics.Debug.WriteLine("IsContainer: " + q.IsContainer.ToString());
+                                System.Diagnostics.Debug.WriteLine("MinX: " + q.MinX.ToString());
+                                System.Diagnostics.Debug.WriteLine("MinY: " + q.MinY.ToString());
+                                System.Diagnostics.Debug.WriteLine("MaxX: " + q.MaxX.ToString());
+                                System.Diagnostics.Debug.WriteLine("MaxY: " + q.MaxY.ToString());
+                                w = w + 1;
+                            }
+                            v = v + 1;
 
                             if (highlight.UpdateExistingQuotation(quotationType, location))
                             {
@@ -268,26 +313,21 @@ namespace QuotationsToolbox
             Project project = Program.ActiveProjectShell.Project;
             if (project == null) return false;
 
-            PreviewControl previewControl = Program.ActiveProjectShell.PrimaryMainForm.PreviewControl;
+            PreviewControl previewControl = PreviewMethods.GetPreviewControl();
             if (previewControl == null) return false;
 
-            Document document = previewControl.GetDocument();
+            PdfViewControl pdfViewControl = previewControl.GetPdfViewControl();
+            if (pdfViewControl == null) return false;
+
+            Document document = pdfViewControl.Document;
             if (document == null) return false;
 
-            Location location = document.GetPDFLocationOfDocument();
+            Location location = previewControl.ActiveLocation;
             if (location == null) return false;
 
             Reference reference = location.Reference;
             if (reference == null) return false;
 
-            var type = previewControl.GetType();
-            var propertyInfos = type.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-            var propertyInfo = propertyInfos.FirstOrDefault(prop => prop.Name.Equals("PdfViewControl", StringComparison.OrdinalIgnoreCase));
-
-            if (propertyInfo == null) return false;
-
-            PdfViewControl pdfViewControl = previewControl.GetPdfViewControl();
-            if (pdfViewControl == null) return false;
 
             // Dynamic variables
 
@@ -479,23 +519,26 @@ namespace QuotationsToolbox
         {
             List<Annotation> equivalentAnnotations = new List<Annotation>();
 
-            PreviewControl previewControl = Program.ActiveProjectShell.PrimaryMainForm.PreviewControl;
+            PreviewControl previewControl = PreviewMethods.GetPreviewControl();
             if (previewControl == null) return null;
 
-            Document document = previewControl.GetDocument();
+            PdfViewControl pdfViewControl = previewControl.GetPdfViewControl();
+            if (pdfViewControl == null) return null;
+
+            Document document = pdfViewControl.Document;
             if (document == null) return null;
 
             Project project = Program.ActiveProjectShell.Project;
             if (project == null) return null;
 
-            Location location = document.GetPDFLocationOfDocument();
+            Location location = previewControl.ActiveLocation;
             if (location == null) return null;
 
             List<Annotation> annotationsAtThisLocation = location.Annotations.ToList();
             if (annotationsAtThisLocation == null) return null;
 
-            equivalentAnnotations = annotationsAtThisLocation.Where(a => !highlight.AsAnnotationQuads().Except(a.Quads.ToList()).Any()).ToList();
-            equivalentAnnotations.AddRange(annotationsAtThisLocation.Where(a => !highlight.AsAnnotationQuads().SimpleQuads().Except(a.Quads.ToList()).Any()).ToList());
+            equivalentAnnotations.AddRange(annotationsAtThisLocation.Where(a => !highlight.AsAnnotationQuads().RoundedQuads().Except(a.Quads.ToList().RoundedQuads()).Any()));
+            equivalentAnnotations.AddRange(annotationsAtThisLocation.Where(a => !highlight.AsAnnotationQuads().SimpleQuads().RoundedQuads().Except(a.Quads.ToList().RoundedQuads()).Any()));
 
             return equivalentAnnotations;
         }
@@ -527,13 +570,16 @@ namespace QuotationsToolbox
             Project project = Program.ActiveProjectShell.Project;
             if (project == null) return null;
 
-            PreviewControl previewControl = Program.ActiveProjectShell.PrimaryMainForm.PreviewControl;
+            PreviewControl previewControl = PreviewMethods.GetPreviewControl();
             if (previewControl == null) return null;
 
-            Document document = previewControl.GetDocument();
+            PdfViewControl pdfViewControl = previewControl.GetPdfViewControl();
+            if (pdfViewControl == null) return null;
+
+            Document document = pdfViewControl.Document;
             if (document == null) return null;
 
-            Location location = document.GetPDFLocationOfDocument();
+            Location location = previewControl.ActiveLocation;
             if (location == null) return null;
 
             Reference reference = location.Reference;
@@ -588,13 +634,16 @@ namespace QuotationsToolbox
 
         public static Annotation TemporaryAnnotation(this Highlight highlight)
         {
-            PreviewControl previewControl = Program.ActiveProjectShell.PrimaryMainForm.PreviewControl;
+            PreviewControl previewControl = PreviewMethods.GetPreviewControl();
             if (previewControl == null) return null;
 
-            Document document = previewControl.GetDocument();
+            PdfViewControl pdfViewControl = previewControl.GetPdfViewControl();
+            if (pdfViewControl == null) return null;
+
+            Document document = pdfViewControl.Document;
             if (document == null) return null;
 
-            Location location = document.GetPDFLocationOfDocument();
+            Location location = previewControl.ActiveLocation;
             if (location == null) return null;
 
             Annotation temporaryAnnotation = new Annotation(location);
@@ -763,16 +812,23 @@ namespace QuotationsToolbox
 
             if (quads.Count > 2)
             {
-                if (MidPoint(quads[0].MinY, quads[0].MaxY) > quads[1].MaxY) tempQuads.Add(quads[0]);
-                for (int i = 1; i < quads.Count - 1; i++)
+                for (int i = 0; i < quads.Count; i++)
                 {
-                    if ((quads[i].MaxX - quads[i].MinX) > 0.50 * (maxX - minX)) tempQuads.Add(quads[i]);
+                    if (i > 0 && i < quads.Count - 2 && (quads[i].MaxX - quads[i].MinX) < 0.51 * (maxX - minX)) continue;
+                    if (tempQuads.Where(q => q.MaxY < quads[i].MaxY).Any()) continue;
+
+                    tempQuads.Add(quads[i]);
                 }
-                tempQuads.Add(quads[quads.Count - 1]);
                 quads = tempQuads;
             }
 
-            int l = quads.Count - 1;
+            quads = quads.OrderByDescending(q => q.QuadMidPoint()).ToList();
+
+            int l = quads.Count;
+
+            double minY = quads.Select(q => q.MinY).Min();
+            double maxY = quads.Select(q => q.MaxY).Max();
+            double height = (maxY - minY) / l;
 
             switch (quads.Count)
             {
@@ -781,27 +837,17 @@ namespace QuotationsToolbox
                 case 1:
                     newQuads = quads;
                     break;
-                case 2:
-                    if (MidPoint(quads[1].MaxY, quads[1].MinY) > quads[0].MinY)
-                    {
-                        newQuads.Add(new Quad(quads[0].PageIndex, false, minX, quads[1].MinY, maxX, quads[0].MaxY));
-                    }
-                    else
-                    {
-                        newQuads.Add(new Quad(quads[0].PageIndex, false, quads[0].MinX, MidPoint(quads[0].MaxY, quads[1].MinY), quads[0].MaxX, quads[0].MaxY));
-                        newQuads.Add(new Quad(quads[1].PageIndex, false, quads[1].MinX, quads[1].MinY, quads[1].MaxX, MidPoint(quads[0].MaxY, quads[1].MinY)));
-                    }
-                    break;
                 default:
-                    newQuads.Add(new Quad(quads[0].PageIndex, false, quads[0].MinX, MidPoint(quads[0].MinY, quads[1].MaxY), maxX, quads[0].MaxY));
-
-                    for (int i = 1; i < l; i++)
+                    newQuads.Add(new Quad(quads[0].PageIndex, false, quads[0].MinX, maxY - height, maxX, maxY ));
+                    for (int i = 1; i < l -1; i++)
                     {
-                        newQuads.Add(new Quad(quads[i].PageIndex, false, minX, MidPoint(quads[i - 1].MaxY, quads[i].MinY), maxX, MidPoint(quads[i].MaxY, quads[i + 1].MinY)));
+                        newQuads.Add(new Quad(quads[i].PageIndex, false, minX, maxY - (i + 1) * height, maxX, maxY - (i) * height ));
                     }
-                    newQuads.Add(new Quad(quads[l].PageIndex, false, minX, quads[l].MinY, quads[l].MaxX, MidPoint(quads[l - 1].MaxY, quads[l].MinY)));
+                    newQuads.Add(new Quad(quads[l-1].PageIndex, false, minX, minY, quads[l-1].MaxX, minY + height));
+
                     break;
             }
+            newQuads = newQuads.OrderByDescending(q => q.QuadMidPoint()).ToList();
             return newQuads;
         }
 
@@ -812,6 +858,21 @@ namespace QuotationsToolbox
             halfwayPoint = Math.Round(((firstValue + secondValue) / 2), 2);
 
             return halfwayPoint;
+        }
+        public static double QuadMidPoint(this Quad quad)
+        {
+            return MidPoint(quad.MaxY, quad.MinY);
+        }
+        public static List<Quad> RoundedQuads(this List<Quad> quads)
+        {
+            int p = 0;
+            List<Quad> newQuads = new List<Quad>();
+            foreach (Quad q in quads)
+            {
+                newQuads.Add(new Quad(q.PageIndex, q.IsContainer, Math.Round(q.MinX, p), Math.Round(q.MinY, p), Math.Round(q.MaxX, p), Math.Round(q.MaxY, p)));
+            }
+            quads = newQuads;
+            return quads;
         }
     }
 }
