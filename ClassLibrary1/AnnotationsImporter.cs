@@ -128,23 +128,24 @@ namespace QuotationsToolbox
                 document = new Document(pathToFile);
             }
 
-            int x = 0;
-            foreach (Annotation a in location.Annotations)
-            {
-                System.Diagnostics.Debug.WriteLine("Annotation " + x.ToString());
-                int y = 0;
-                foreach (Quad q in a.Quads)
-                {
-                    System.Diagnostics.Debug.WriteLine("Quad " + y.ToString());
-                    System.Diagnostics.Debug.WriteLine("IsContainer: " + q.IsContainer.ToString());
-                    System.Diagnostics.Debug.WriteLine("MinX: " + q.MinX.ToString());
-                    System.Diagnostics.Debug.WriteLine("MinY: " + q.MinY.ToString());
-                    System.Diagnostics.Debug.WriteLine("MaxX: " + q.MaxX.ToString());
-                    System.Diagnostics.Debug.WriteLine("MaxY: " + q.MaxY.ToString());
-                    y = y + 1;
-                }
-                x = x + 1;
-            }
+            //Uncomment here to get an overview of all annotations
+            //int x = 0;
+            //foreach (Annotation a in location.Annotations)
+            //{
+            //    System.Diagnostics.Debug.WriteLine("Annotation " + x.ToString());
+            //    int y = 0;
+            //    foreach (Quad q in a.Quads)
+            //    {
+            //        System.Diagnostics.Debug.WriteLine("Quad " + y.ToString());
+            //        System.Diagnostics.Debug.WriteLine("IsContainer: " + q.IsContainer.ToString());
+            //        System.Diagnostics.Debug.WriteLine("MinX: " + q.MinX.ToString());
+            //        System.Diagnostics.Debug.WriteLine("MinY: " + q.MinY.ToString());
+            //        System.Diagnostics.Debug.WriteLine("MaxX: " + q.MaxX.ToString());
+            //        System.Diagnostics.Debug.WriteLine("MaxY: " + q.MaxY.ToString());
+            //        y = y + 1;
+            //    }
+            //    x = x + 1;
+            //}
 
             int v = 0;
             for (int pageIndex = 1; pageIndex <= document.GetPageCount(); pageIndex++)
@@ -174,19 +175,20 @@ namespace QuotationsToolbox
                                 continue;
                             }
 
-                            System.Diagnostics.Debug.WriteLine("Highlight " + v.ToString());
-                            int w = 0;
-                            foreach (Quad q in highlight.AsAnnotationQuads())
-                            {
-                                System.Diagnostics.Debug.WriteLine("Quad " + w.ToString());
-                                System.Diagnostics.Debug.WriteLine("IsContainer: " + q.IsContainer.ToString());
-                                System.Diagnostics.Debug.WriteLine("MinX: " + q.MinX.ToString());
-                                System.Diagnostics.Debug.WriteLine("MinY: " + q.MinY.ToString());
-                                System.Diagnostics.Debug.WriteLine("MaxX: " + q.MaxX.ToString());
-                                System.Diagnostics.Debug.WriteLine("MaxY: " + q.MaxY.ToString());
-                                w = w + 1;
-                            }
-                            v = v + 1;
+                            // Uncomment here to get an overview of all highlights
+                            //System.Diagnostics.Debug.WriteLine("Highlight " + v.ToString());
+                            //int w = 0;
+                            //foreach (Quad q in highlight.AsAnnotationQuads())
+                            //{
+                            //    System.Diagnostics.Debug.WriteLine("Quad " + w.ToString());
+                            //    System.Diagnostics.Debug.WriteLine("IsContainer: " + q.IsContainer.ToString());
+                            //    System.Diagnostics.Debug.WriteLine("MinX: " + q.MinX.ToString());
+                            //    System.Diagnostics.Debug.WriteLine("MinY: " + q.MinY.ToString());
+                            //    System.Diagnostics.Debug.WriteLine("MaxX: " + q.MaxX.ToString());
+                            //    System.Diagnostics.Debug.WriteLine("MaxY: " + q.MaxY.ToString());
+                            //    w = w + 1;
+                            //}
+                            //v = v + 1;
 
                             if (highlight.UpdateExistingQuotation(quotationType, location))
                             {
